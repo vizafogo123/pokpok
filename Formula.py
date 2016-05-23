@@ -160,7 +160,7 @@ class Formula:
             res.append(r)
 
         return NormalForm(res)
-
+#siopajapo
 
 if __name__ == '__main__':
     f=Formula([])
