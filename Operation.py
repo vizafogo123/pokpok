@@ -34,6 +34,14 @@ class Operation:
             if chr(i) not in [var.name for var in set_of_vars]:
                 return Operation(0, chr(i), chr(i), Operation.VARIABLE)
 
+    @staticmethod
+    def get_new_expression(set_of_ops, no_of_args):
+        for i in range(1, 100):
+            if "S_" + str(i) not in [op.name for op in set_of_ops]:
+                return Operation(0, "s_" + str(i), "S_" + str(i), Operation.EXPRESSION) if no_of_args == 0 else \
+                    Operation(no_of_args, "S_" + str(i) + " \left( " + ",".join(['{}'] * no_of_args) + "\\right)",
+                              "S_" + str(i), Operation.EXPRESSION)
+
 
 FORALL = Operation(2, "\\forall {} : \, {}", "forall", Operation.QUANTOR)
 EXISTS = Operation(2, "\\exists {} : \, {}", "exists", Operation.QUANTOR)

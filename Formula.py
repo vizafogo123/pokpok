@@ -58,17 +58,17 @@ class Formula:
     def is_closed(self):
         return sum([x.no_of_args - 1 for x in self.body]) == -1
 
+    def substitute_equivalences(self):
+        n = 0
+        while n < len(self.body):
+            if self.body[n] == EQUI:
+                self.body = self.body[:n] + [AND, IF] + self.body[n + 1:self.start_of_child(n, 3)] \
+                            + [IF] + self.body[self.start_of_child(n, 2):self.start_of_child(n, 3)] \
+                            + self.body[n + 1:self.start_of_child(n, 2)] + self.body[self.start_of_child(n, 3):]
+            n += 1
+
     def substitute_ifs(self):
         self.body = self.substitute(Formula([IF]), Formula([OR, NOT])).body
-
-    def substitute_equivalences(self):
-        n=0
-        while n<len(self.body):
-            if self.body[n]==EQUI:
-                self.body=self.body[:n]+[AND,IF]+self.body[n+1:self.start_of_child(n,3)]\
-                          +[IF]+self.body[self.start_of_child(n,2):self.start_of_child(n,3)]\
-                          +self.body[n+1:self.start_of_child(n,2)]+self.body[self.start_of_child(n,3):]
-            n+=1
 
     def remove_duplicate_negations(self):
         for n in range(len(self.body) - 1):
@@ -76,13 +76,16 @@ class Formula:
                 del self.body[n]
                 del self.body[n]
 
-    def move_one_negation_down(self):
-        for n in range(len(self.body)):
-            if self.body[n] == NOT and self.body[n + 1] in [AND, OR]:
-                self.body.insert(self.start_of_child(n + 1, 2), NOT)
-                self.body[n] = (AND if self.body[n + 1] == OR else OR)
-                self.body[n + 1] = NOT
-                return True
+    def rename_one_quantor(self):
+        for k in range(len(self.body)):
+            if self.body[k].type == Operation.QUANTOR:
+                for n in range(k + 2, len(self.body)):
+                    if self.body[n].type == Operation.QUANTOR and self.body[k + 1] == self.body[n + 1]:
+                        new_var = Operation.get_new_variable([op for op in self.body if op.type == Operation.VARIABLE])
+                        s = Formula(self.body[n:self.start_of_child(n, 3)]).substitute(Formula([self.body[n + 1]]),
+                                                                                       Formula([new_var]))
+                        self.body = self.body[:n] + s.body + self.body[self.start_of_child(n, 3):]
+                        return True
         return False
 
     def move_one_quantor_up(self):
@@ -107,6 +110,15 @@ class Formula:
                 return True
         return False
 
+    def move_one_negation_down(self):
+        for n in range(len(self.body)):
+            if self.body[n] == NOT and self.body[n + 1] in [AND, OR]:
+                self.body.insert(self.start_of_child(n + 1, 2), NOT)
+                self.body[n] = (AND if self.body[n + 1] == OR else OR)
+                self.body[n + 1] = NOT
+                return True
+        return False
+
     def move_one_and_up(self):
         for n in range(len(self.body)):
             if self.body[n] == OR and self.body[n + 1] == AND:
@@ -126,12 +138,24 @@ class Formula:
                 return True
         return False
 
+    def remove_one_exists(self):
+        for k in range(len(self.body)):
+            if self.body[k] == EXISTS:
+                op = Operation.get_new_expression(self.body, k // 2)
+                var = self.body[k + 1]
+                del self.body[k]
+                del self.body[k]
+                self.body = self.substitute(Formula([var]), Formula([op] + [self.body[i] for i in range(1, k, 2)])).body
+                return True
+        return False
+
     def simplify(self):
         res = Formula(self.body)
         res.substitute_equivalences()
         res.substitute_ifs()
         res.remove_duplicate_negations()
-        for s in [res.move_one_quantor_up, res.move_one_negation_down, res.move_one_and_up]:
+        for s in [res.rename_one_quantor, res.move_one_quantor_up, res.move_one_negation_down, res.move_one_and_up,
+                  res.remove_one_exists]:
             while s():
                 res.remove_duplicate_negations()
         return res
@@ -198,8 +222,9 @@ class Formula:
 
 
 if __name__ == '__main__':
-    f = Formula([EQUI, EQUI, A,B,C])
+    f = Formula([EXISTS, A, IN,A,A])
     print(f.dump())
     f=f.simplify()
+    # f.rename_one_quantor()
     # print(f.to_cnf().to_latex())
-    print(f.to_latex())
+    print(f.dump())
