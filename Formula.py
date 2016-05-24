@@ -1,5 +1,5 @@
 from NormalForm import NormalForm
-from Operation import PLACEHOLDER, AND, OR, NOT, A, B, IF, FORALL, EXISTS, C, D, Operation, IN, EQUI
+from Operation import PLACEHOLDER, AND, OR, NOT, A, B, IF, FORALL, EXISTS, C, D, Operation, IN, EQUI, EQUALS
 
 
 class Formula:
@@ -8,6 +8,9 @@ class Formula:
 
     def __eq__(self, other):
         return self.body == other.body
+
+    def __hash__(self):
+        return hash(tuple(self.body))
 
     def is_negation_of(self, other):
         return ([NOT] + self.body if self.body[0] != NOT else self.body[1:]) == other.body
@@ -221,10 +224,12 @@ class Formula:
         return res
 
 
+AX_EXT = Formula([FORALL, A, FORALL, B, IF, FORALL, C, EQUI, IN, C, A, IN, C, B, EQUALS, A, B])
+AX_REG = Formula(
+        [FORALL, A, IF, EXISTS, B, IN, B, A, EXISTS, C, AND, IN, C, A, NOT, EXISTS, D, AND, IN, D, C, IN, D, A])
+
 if __name__ == '__main__':
-    f = Formula([EXISTS, A, IN,A,A])
-    print(f.dump())
-    f=f.simplify()
+    f = AX_EXT.simplify()
     # f.rename_one_quantor()
     # print(f.to_cnf().to_latex())
-    print(f.dump())
+    print(f.to_cnf().to_latex())

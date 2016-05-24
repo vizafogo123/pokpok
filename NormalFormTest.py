@@ -1,4 +1,6 @@
+from Formula import Formula
 from NormalForm import NormalForm
+from Operation import A, B
 
 
 class pok:
@@ -28,10 +30,19 @@ a = NormalForm(
 b = NormalForm([])
 c = NormalForm([[pok('C')], [pok('X'), pok('Y')], [pok('A')], [pok('-A')]])
 
-a.simplify()
+d=NormalForm([[pok('A'),pok('B')],[pok('A')]])
 
+a.simplify()
 print(a.printout())
 print(a.is_empty(), b.is_empty())
 print(a.is_degenerate(), c.is_degenerate())
 
+d.simplify()
+print(d.printout())
+
 print(a.to_latex())
+
+e=NormalForm([[Formula([A]),Formula([B])],[Formula([A])]])
+e.simplify()
+print(e.printout())
+

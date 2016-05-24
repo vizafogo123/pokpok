@@ -32,6 +32,9 @@ class NormalForm:
                 if set(self.body[y]) > set(self.body[x]):
                     del self.body[y]
                     return True
+                if set(self.body[x]) > set(self.body[y]):
+                    del self.body[x]
+                    return True
         return False
 
     def remove_degenerates(self):
