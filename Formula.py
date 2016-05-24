@@ -1,5 +1,5 @@
 from NormalForm import NormalForm
-from Operation import PLACEHOLDER, AND, OR, NOT, A, B, IF, FORALL, EXISTS, C, D, Operation, IN
+from Operation import PLACEHOLDER, AND, OR, NOT, A, B, IF, FORALL, EXISTS, C, D, Operation, IN, EQUI
 
 
 class Formula:
@@ -59,12 +59,16 @@ class Formula:
         return sum([x.no_of_args - 1 for x in self.body]) == -1
 
     def substitute_ifs(self):
-        n = 0
-        while n < len(self.body):
-            if self.body[n] == IF:
-                self.body[n] = OR
-                self.body.insert(n + 1, NOT)
-            n += 1
+        self.body = self.substitute(Formula([IF]), Formula([OR, NOT])).body
+
+    def substitute_equivalences(self):
+        n=0
+        while n<len(self.body):
+            if self.body[n]==EQUI:
+                self.body=self.body[:n]+[AND,IF]+self.body[n+1:self.start_of_child(n,3)]\
+                          +[IF]+self.body[self.start_of_child(n,2):self.start_of_child(n,3)]\
+                          +self.body[n+1:self.start_of_child(n,2)]+self.body[self.start_of_child(n,3):]
+            n+=1
 
     def remove_duplicate_negations(self):
         for n in range(len(self.body) - 1):
@@ -124,6 +128,7 @@ class Formula:
 
     def simplify(self):
         res = Formula(self.body)
+        res.substitute_equivalences()
         res.substitute_ifs()
         res.remove_duplicate_negations()
         for s in [res.move_one_quantor_up, res.move_one_negation_down, res.move_one_and_up]:
@@ -138,7 +143,7 @@ class Formula:
             k = self.start_of_child(k, 2)
 
         if self.body[k] != AND:
-            tags = [Formula(self.body)]
+            tags = [Formula(self.body[k:])]
         else:
             for n in range(k, len(self.body)):
                 if self.body[n] == AND and self.body[n + 1] != AND:
@@ -160,10 +165,41 @@ class Formula:
             res.append(r)
 
         return NormalForm(res)
-#siopajapo
+
+    def substitute(self, source, dest):
+        return self.substitute_parallel([source], [dest])
+
+    def substitute_parallel(self, source_list, dest_list):
+        k = 0
+        res = Formula(self.body)
+        while k < len(res.body):
+            b = True
+            for n in range(len(source_list)):
+                if b and res.body[k:k + len(source_list[n].body)] == source_list[n].body:
+                    res.body = res.body[:k] + dest_list[n].body + res.body[k + len(source_list[n].body):]
+                    k += len(dest_list[n].body)
+                    b = False
+            if b:
+                k += 1
+        return res
+
+    def substitute_definition(self, function, definition):
+        res = Formula(self.body)
+        k = len(res.body) - 1
+        while k >= 0:
+            if res.body[k] == function.body[0]:
+                d = Formula(definition.body)
+                d = d.substitute_parallel([Formula([function.body[v]]) for v in range(1, res.body[k].no_of_args + 1)],
+                                          [Formula(res.body[res.start_of_child(k, v):res.start_of_child(k, v + 1)]) for
+                                           v in range(1, res.body[k].no_of_args + 1)])
+                res.body = res.body[:k] + d.body + res.body[res.start_of_child(k, res.body[k].no_of_args + 1):]
+            k -= 1
+        return res
+
 
 if __name__ == '__main__':
-    f=Formula([])
+    f = Formula([EQUI, EQUI, A,B,C])
     print(f.dump())
-    f.add_one_op(A)
-    print(f.dump())
+    f=f.simplify()
+    # print(f.to_cnf().to_latex())
+    print(f.to_latex())

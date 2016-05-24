@@ -1,6 +1,7 @@
 class NormalForm:
     def __init__(self, body):
         self.body = body
+        self.simplify()
 
     def printout(self):
         return '\n'.join(['\t'.join([str(x) for x in y]) for y in self.body])
