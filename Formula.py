@@ -1,5 +1,7 @@
 from NormalForm import NormalForm
-from Operation import PLACEHOLDER, AND, OR, NOT, A, B, IF, FORALL, EXISTS, C, D, Operation, IN, EQUI, EQUALS
+from Operation import PLACEHOLDER, AND, OR, NOT, A, B, IF, FORALL, EXISTS, C, D, Operation, IN, EQUI, EQUALS, PHI1, \
+    PHI2, \
+    E, F, EMPTY, G, H
 
 
 class Formula:
@@ -224,12 +226,27 @@ class Formula:
         return res
 
 
+AX_EMPT = Formula([NOT, EXISTS, A, IN, A, EMPTY])
 AX_EXT = Formula([FORALL, A, FORALL, B, IF, FORALL, C, EQUI, IN, C, A, IN, C, B, EQUALS, A, B])
 AX_REG = Formula(
         [FORALL, A, IF, EXISTS, B, IN, B, A, EXISTS, C, AND, IN, C, A, NOT, EXISTS, D, AND, IN, D, C, IN, D, A])
+AX_UNI = Formula([FORALL, A, EXISTS, B, FORALL, C, FORALL, D, IF, AND, IN, D, C, IN, C, A, IN, D, B])
+AX_SPEC = Formula([FORALL, A, EXISTS, B, FORALL, C, EQUI, IN, C, B, PHI1, C])
+AX_REP = Formula(
+        [FORALL, A, IF, FORALL, B, IF, IN, B, A, EXISTS, C, PHI2, B, C, EXISTS, D, FORALL, E, IF, IN, E, A, EXISTS, F,
+         AND, IN, F, D, PHI2, E, F])
+AX_INF = Formula(
+        [EXISTS, A, AND, IN, EMPTY, A, FORALL, B, IF, IN, B, A, EXISTS, C, AND, IN, C, A, FORALL, D, EQUI, IN, D, C, OR,
+         EQUALS, D, B, IN, D, B])
+AX_CHO = Formula(
+        [FORALL, A, IF, AND, NOT, IN, EMPTY, A, FORALL, B, IF, IN, B, A, FORALL, C, IF, IN, B, C, NOT, EXISTS, D, AND,
+         IN, D, B, IN, D, C, EXISTS, E,
+         FORALL, F, IF, IN, F, A, EXISTS, G, AND, AND, IN, G, E, IN, G, F, FORALL, H, IF, AND, IN, H, E, IN, H, F,
+         EQUALS, H, G])
 
 if __name__ == '__main__':
-    f = AX_EXT.simplify()
+    f = AX_CHO.simplify()
     # f.rename_one_quantor()
     # print(f.to_cnf().to_latex())
     print(f.to_cnf().to_latex())
+    print(AX_CHO.to_latex())

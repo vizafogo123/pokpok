@@ -61,6 +61,12 @@ B = Operation(0, "b", "b", Operation.VARIABLE)
 C = Operation(0, "c", "c", Operation.VARIABLE)
 D = Operation(0, "d", "d", Operation.VARIABLE)
 E = Operation(0, "e", "e", Operation.VARIABLE)
+F = Operation(0, "f", "f", Operation.VARIABLE)
+G = Operation(0, "g", "g", Operation.VARIABLE)
+H = Operation(0, "h", "h", Operation.VARIABLE)
+
+PHI1=Operation(1, "\phi \left( {} \\right)", "phi1", Operation.RELATION,available=False)
+PHI2=Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION,available=False)
 
 PLACEHOLDER = Operation(0, "\Box", "placeholder", Operation.PLACEHOLDER, available=False)
 
