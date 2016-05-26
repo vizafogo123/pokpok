@@ -101,23 +101,6 @@ class Formula:
                         return True
         return False
 
-    def move_one_quantor_up(self):
-        for n in range(len(self.body)):
-            if self.body[n] in [AND, OR] and self.body[n + 1] in [FORALL, EXISTS]:
-                tmp = self.body[n]
-                self.body[n] = self.body[n + 1]
-                self.body[n + 1] = self.body[n + 2]
-                self.body[n + 2] = tmp
-                return True
-            if self.body[n] in [AND, OR] and self.body[self.start_of_child(n, 2)] in [FORALL, EXISTS]:
-                k = self.start_of_child(n, 2)
-                self.body.insert(n, self.body[k])
-                self.body.insert(n + 1, self.body[k + 2])
-                del self.body[k + 3]
-                del self.body[k + 2]
-                return True
-        return False
-
     def move_one_negation_down(self):
         for n in range(len(self.body)):
             if self.body[n] == NOT and self.body[n + 1] in [AND, OR]:
@@ -167,12 +150,20 @@ class Formula:
                 return True
         return False
 
+    def remove_one_forall(self):
+        for k in range(len(self.body)):
+            if self.body[k] == FORALL:
+                del self.body[k]
+                del self.body[k]
+                return True
+        return False
+
     def simplify(self):
         res = Formula(self.body)
         res.substitute_equivalences()
         res.substitute_ifs()
         res.remove_duplicate_negations()
-        for s in [res.rename_one_quantor, res.move_one_negation_down, res.remove_one_exists, res.move_one_quantor_up,
+        for s in [res.rename_one_quantor, res.move_one_negation_down, res.remove_one_exists, res.remove_one_forall,
                   res.move_one_and_up]:
             while s():
                 res.remove_duplicate_negations()
@@ -238,9 +229,9 @@ class Formula:
 AX_EMPT = Formula([NOT, EXISTS, A, IN, A, EMPTY])
 AX_EXT = Formula([FORALL, A, FORALL, B, IF, FORALL, C, EQUI, IN, C, A, IN, C, B, EQUALS, A, B])
 AX_REG = Formula(
-        [FORALL, A, IF, EXISTS, B, IN, B, A, EXISTS, C, AND, IN, C, A, NOT, EXISTS, D, AND, IN, D, C, IN, D, A])
+        [FORALL, A, IF, NOT, EQUALS, A, EMPTY, EXISTS, B, AND, IN, B, A, NOT, EXISTS, C, AND, IN, C, B, IN, C, A])
 AX_UNI = Formula([FORALL, A, EXISTS, B, FORALL, C, FORALL, D, IF, AND, IN, D, C, IN, C, A, IN, D, B])
-AX_SPEC = Formula([FORALL, A, EXISTS, B, FORALL, C, EQUI, IN, C, B, PHI1, C])
+AX_SPEC = Formula([FORALL, A, EXISTS, B, FORALL, C, EQUI, IN, C, B, AND, IN, C, A, PHI1, C])
 AX_REP = Formula(
         [FORALL, A, IF, FORALL, B, IF, IN, B, A, EXISTS, C, PHI2, B, C, EXISTS, D, FORALL, E, IF, IN, E, A, EXISTS, F,
          AND, IN, F, D, PHI2, E, F])
@@ -249,12 +240,11 @@ AX_INF = Formula(
          EQUALS, D, B, IN, D, B])
 AX_CHO = Formula(
         [FORALL, A, IF, AND, NOT, IN, EMPTY, A, FORALL, B, IF, IN, B, A, FORALL, C, IF, IN, C, A, NOT, EXISTS, D, AND,
-         IN, D, B, IN, D, C, EXISTS, E,
-         FORALL, F, IF, IN, F, A, EXISTS, G, AND, AND, IN, G, E, IN, G, F, FORALL, H, IF, AND, IN, H, E, IN, H, F,
-         EQUALS, H, G])
+         IN, D, B, IN, D, C, EXISTS, E, FORALL, F, IF, IN, F, A, EXISTS, G, AND, AND, IN, G, E, IN, G, F, FORALL, H, IF,
+         AND, IN, H, E, IN, H, F, EQUALS, H, G])
 
 if __name__ == '__main__':
-    f = AX_CHO
+    f = AX_EXT
     # f.rename_one_quantor()
     print(f.to_latex())
     print()
