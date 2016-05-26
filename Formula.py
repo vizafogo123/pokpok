@@ -17,15 +17,26 @@ class Formula:
     def is_negation_of(self, other):
         return ([NOT] + self.body if self.body[0] != NOT else self.body[1:]) == other.body
 
-    def parent(self, child, default=None):
-        if child == 0:
-            return default
+    def start_of_child(self, n, k):
+        i = n
+        depth = -1
+        ch_n = 0
+        while True:
+            if depth == -1:
+                ch_n += 1
+                depth = 0
+            if ch_n == k:
+                return i + 1
+            i += 1
+            depth += self.body[i].no_of_args - 1
+
+    def parent(self, child):
         k = child - 1
         n = self.body[k].no_of_args - 1
         while n < 0:
             k -= 1
             n += self.body[k].no_of_args - 1
-        return self.body[k]
+        return k
 
     def add_one_op(self, op):
         if len(self.body) == 0:
@@ -41,19 +52,6 @@ class Formula:
             no_of_child = parent.no_of_args - n
         if Operation.can_follow(parent, op, no_of_child):
             self.body += [op]
-
-    def start_of_child(self, n, k):
-        i = n
-        depth = -1
-        ch_n = 0
-        while True:
-            if depth == -1:
-                ch_n += 1
-                depth = 0
-            if ch_n == k:
-                return i + 1
-            i += 1
-            depth += self.body[i].no_of_args - 1
 
     def to_latex(self):
         p = [''] * len(self.body)
@@ -105,11 +103,6 @@ class Formula:
 
     def move_one_quantor_up(self):
         for n in range(len(self.body)):
-            if self.body[n] == NOT and self.body[n + 1] in [FORALL, EXISTS]:
-                self.body[n] = (FORALL if self.body[n + 1] == EXISTS else EXISTS)
-                self.body[n + 1] = self.body[n + 2]
-                self.body[n + 2] = NOT
-                return True
             if self.body[n] in [AND, OR] and self.body[n + 1] in [FORALL, EXISTS]:
                 tmp = self.body[n]
                 self.body[n] = self.body[n + 1]
@@ -132,6 +125,12 @@ class Formula:
                 self.body[n] = (AND if self.body[n + 1] == OR else OR)
                 self.body[n + 1] = NOT
                 return True
+            if self.body[n] == NOT and self.body[n + 1] in [FORALL, EXISTS]:
+                self.body[n] = (FORALL if self.body[n + 1] == EXISTS else EXISTS)
+                self.body[n + 1] = self.body[n + 2]
+                self.body[n + 2] = NOT
+                return True
+
         return False
 
     def move_one_and_up(self):
@@ -156,11 +155,15 @@ class Formula:
     def remove_one_exists(self):
         for k in range(len(self.body)):
             if self.body[k] == EXISTS:
-                op = Operation.get_new_expression(self.body, k // 2, var=self.body[k + 1])
-                var = self.body[k + 1]
-                del self.body[k]
-                del self.body[k]
-                self.body = self.substitute(Formula([var]), Formula([op] + [self.body[i] for i in range(1, k, 2)])).body
+                vars = []
+                n = k
+                while n > 0:
+                    n = self.parent(n)
+                    if self.body[n] == FORALL:
+                        vars = [self.body[n + 1]] + vars
+                op = Operation.get_new_expression(self.body, len(vars), var=self.body[k + 1])
+                self.body = self.body[:k] + Formula(self.body[k + 2:self.start_of_child(k, 3)]).substitute(
+                        Formula([self.body[k + 1]]), Formula([op] + vars)).body + self.body[self.start_of_child(k, 3):]
                 return True
         return False
 
@@ -169,8 +172,8 @@ class Formula:
         res.substitute_equivalences()
         res.substitute_ifs()
         res.remove_duplicate_negations()
-        for s in [res.rename_one_quantor, res.move_one_quantor_up, res.move_one_negation_down, res.move_one_and_up,
-                  res.remove_one_exists]:
+        for s in [res.rename_one_quantor, res.move_one_negation_down, res.remove_one_exists, res.move_one_quantor_up,
+                  res.move_one_and_up]:
             while s():
                 res.remove_duplicate_negations()
         return res
@@ -185,10 +188,8 @@ class Formula:
             tags = [Formula(self.body[k:])]
         else:
             for n in range(k, len(self.body)):
-                if self.body[n] == AND and self.body[n + 1] != AND:
-                    tags.append(Formula(self.body[n + 1:self.start_of_child(n, 2)]))
-                if self.body[n] == AND and self.body[self.start_of_child(n, 2)] != AND:
-                    tags.append(Formula(self.body[self.start_of_child(n, 2):self.start_of_child(n, 3)]))
+                if self.body[n] != AND and self.body[self.parent(n)] == AND:
+                    tags.append(Formula(self.body[n:self.start_of_child(n, self.body[n].no_of_args + 1)]))
 
         res = []
         for t in tags:
@@ -197,10 +198,8 @@ class Formula:
             else:
                 r = []
                 for n in range(len(t.body)):
-                    if t.body[n] == OR and t.body[n + 1] != OR:
-                        r.append(Formula(t.body[n + 1:t.start_of_child(n, 2)]))
-                    if t.body[n] == OR and t.body[t.start_of_child(n, 2)] != OR:
-                        r.append(Formula(t.body[t.start_of_child(n, 2):t.start_of_child(n, 3)]))
+                    if t.body[n] != OR and t.body[t.parent(n)] == OR:
+                        r.append(Formula(t.body[n:t.start_of_child(n, t.body[n].no_of_args + 1)]))
             res.append(r)
 
         return NormalForm(res)
@@ -249,15 +248,15 @@ AX_INF = Formula(
         [EXISTS, A, AND, IN, EMPTY, A, FORALL, B, IF, IN, B, A, EXISTS, C, AND, IN, C, A, FORALL, D, EQUI, IN, D, C, OR,
          EQUALS, D, B, IN, D, B])
 AX_CHO = Formula(
-        [FORALL, A, IF, AND, NOT, IN, EMPTY, A, FORALL, B, IF, IN, B, A, FORALL, C, IF, IN, B, C, NOT, EXISTS, D, AND,
+        [FORALL, A, IF, AND, NOT, IN, EMPTY, A, FORALL, B, IF, IN, B, A, FORALL, C, IF, IN, C, A, NOT, EXISTS, D, AND,
          IN, D, B, IN, D, C, EXISTS, E,
          FORALL, F, IF, IN, F, A, EXISTS, G, AND, AND, IN, G, E, IN, G, F, FORALL, H, IF, AND, IN, H, E, IN, H, F,
          EQUALS, H, G])
 
 if __name__ == '__main__':
-    f = AX_EXT
-    print(f.parent(13))
+    f = AX_CHO
     # f.rename_one_quantor()
-    # print(f.to_cnf().to_latex())
-    # print(f.to_cnf().to_latex())
+    print(f.to_latex())
+    print()
+    print(f.simplify().to_cnf().to_latex())
     # print(AX_INF.to_latex())
