@@ -17,6 +17,16 @@ class Formula:
     def is_negation_of(self, other):
         return ([NOT] + self.body if self.body[0] != NOT else self.body[1:]) == other.body
 
+    def parent(self, child, default=None):
+        if child == 0:
+            return default
+        k = child - 1
+        n = self.body[k].no_of_args - 1
+        while n < 0:
+            k -= 1
+            n += self.body[k].no_of_args - 1
+        return self.body[k]
+
     def add_one_op(self, op):
         if len(self.body) == 0:
             parent = NOT
@@ -146,7 +156,7 @@ class Formula:
     def remove_one_exists(self):
         for k in range(len(self.body)):
             if self.body[k] == EXISTS:
-                op = Operation.get_new_expression(self.body, k // 2)
+                op = Operation.get_new_expression(self.body, k // 2, var=self.body[k + 1])
                 var = self.body[k + 1]
                 del self.body[k]
                 del self.body[k]
@@ -245,8 +255,9 @@ AX_CHO = Formula(
          EQUALS, H, G])
 
 if __name__ == '__main__':
-    f = AX_CHO.simplify()
+    f = AX_EXT
+    print(f.parent(13))
     # f.rename_one_quantor()
     # print(f.to_cnf().to_latex())
-    print(f.to_cnf().to_latex())
-    print(AX_CHO.to_latex())
+    # print(f.to_cnf().to_latex())
+    # print(AX_INF.to_latex())
