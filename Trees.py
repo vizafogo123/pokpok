@@ -3,12 +3,19 @@ import urllib
 from pokpok.Formula import Formula
 from pokpok.Operation import operations
 from pyjamas.ui import HasAlignment
+from pyjamas.ui.DialogBox import DialogBox
+from pyjamas.ui.DockPanel import DockPanel
+from pyjamas.ui.HTML import HTML
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
 from pyjamas.ui.Image import Image
 from pyjamas.ui.Sink import Sink, SinkInfo
 from pyjamas.ui.Tree import Tree
 from pyjamas.ui.TreeItem import TreeItem
 from pyjamas import Window
+from pyjamas.ui.Button import Button
+
+from sink.Popups import MyDialog, MyDialogWindow
+
 
 def latex_to_url(latex):
     return 'http://latex.codecogs.com/gif.download?' + urllib.quote(latex)
@@ -31,6 +38,7 @@ class Trees(Sink):
         self.fTree.addTreeListener(self)
 
         self.panel = HorizontalPanel(VerticalAlignment=HasAlignment.ALIGN_TOP)
+        self.panel.setSpacing(40)
         self.panel.add(self.fTree)
 
         self.f = Formula([])
@@ -47,6 +55,38 @@ class Trees(Sink):
         # self.initWidget(self.fTree)
 
     def onTreeItemSelected(self, item):
+         dlg = DialogBox(self.baseURL())
+         left = 100
+         top = 100
+
+         closeButton = Button("Close", dlg)
+         msg = HTML("<center>This is an example of a standard dialog box component.<br>  You can put pretty much anything you like into it,<br>such as the following IFRAME:</center>", True)
+
+         dock = DockPanel()
+         dock.setSpacing(4)
+
+         dock.add(closeButton, DockPanel.SOUTH)
+         dock.add(msg, DockPanel.NORTH)
+
+         dock.setCellHorizontalAlignment(closeButton, HasAlignment.ALIGN_RIGHT)
+         dock.setWidth("100%")
+
+
+         dlg.setText("opkop")
+         dlg.setPopupPosition(left, top)
+         dlg.setStyleAttribute("background-color","#8a00b8")
+         dlg.setStyleAttribute("color","white")
+         dlg.setStyleAttribute("border-width","5px")
+         dlg.setStyleAttribute("text-transform","uppercase")
+         dlg.setStyleAttribute("border-style","solid")
+
+         dlg.onClick=lambda x:dlg.hide()
+         # dlg.setDefaults()
+         dlg.setWidget(dock)
+
+         # dlg.setElement("body",)
+
+         dlg.show()
          if item.children == []:
             if not self.f.is_closed():
                 for op in [x["op"] for x in self.ops if item.userObject==x["proto"]]:
