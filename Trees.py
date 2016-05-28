@@ -4,6 +4,7 @@ from pokpok.Formula import Formula
 from pokpok.Operation import operations
 from pyjamas.ui import HasAlignment
 from pyjamas.ui.DialogBox import DialogBox
+from pyjamas.ui.DialogWindow import DialogWindow
 from pyjamas.ui.DockPanel import DockPanel
 from pyjamas.ui.HTML import HTML
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
@@ -20,9 +21,10 @@ from sink.Popups import MyDialog, MyDialogWindow
 def latex_to_url(latex):
     return 'http://latex.codecogs.com/gif.download?' + urllib.quote(latex)
 
+
 class Trees(Sink):
     def __init__(self):
-        self.ops=[{"op":op,"proto":Proto(op.name)} for op in operations if op.available]
+        self.ops = [{"op": op, "proto": Proto(op.name)} for op in operations if op.available]
 
         Sink.__init__(self)
         self.fProto = [
@@ -44,61 +46,26 @@ class Trees(Sink):
         self.f = Formula([])
 
         self.image1 = Image(latex_to_url(self.f.fill_with_placeholders().to_latex()))
-        self.image2=Image()
+        self.image2 = Image()
         self.panel.add(self.image1)
         self.panel.add(self.image2)
 
         self.initWidget(self.panel)
 
-
-
-        # self.initWidget(self.fTree)
-
     def onTreeItemSelected(self, item):
-         dlg = DialogBox(self.baseURL())
-         left = 100
-         top = 100
+        dlg = FormulaBuilder(operations)
 
-         closeButton = Button("Close", dlg)
-         msg = HTML("<center>This is an example of a standard dialog box component.<br>  You can put pretty much anything you like into it,<br>such as the following IFRAME:</center>", True)
-
-         dock = DockPanel()
-         dock.setSpacing(4)
-
-         dock.add(closeButton, DockPanel.SOUTH)
-         dock.add(msg, DockPanel.NORTH)
-
-         dock.setCellHorizontalAlignment(closeButton, HasAlignment.ALIGN_RIGHT)
-         dock.setWidth("100%")
-
-
-         dlg.setText("opkop")
-         dlg.setPopupPosition(left, top)
-         dlg.setStyleAttribute("background-color","#8a00b8")
-         dlg.setStyleAttribute("color","white")
-         dlg.setStyleAttribute("border-width","5px")
-         dlg.setStyleAttribute("text-transform","uppercase")
-         dlg.setStyleAttribute("border-style","solid")
-
-         dlg.onClick=lambda x:dlg.hide()
-         # dlg.setDefaults()
-         dlg.setWidget(dock)
-
-         # dlg.setElement("body",)
-
-         dlg.show()
-         if item.children == []:
+        dlg.show()
+        if item.children == []:
             if not self.f.is_closed():
-                for op in [x["op"] for x in self.ops if item.userObject==x["proto"]]:
+                for op in [x["op"] for x in self.ops if item.userObject == x["proto"]]:
                     self.f.add_one_op(op)
                     self.image1.setUrl(latex_to_url(self.f.fill_with_placeholders().to_latex()))
             else:
 
-                self.f=self.f.simplify()
-                #self.image2.setUrl(latex_to_url(self.f.to_latex()))
+                self.f = self.f.simplify()
+                # self.image2.setUrl(latex_to_url(self.f.to_latex()))
                 self.image2.setUrl(latex_to_url(self.f.to_cnf().to_latex()))
-
-
 
     def onTreeItemStateChanged(self, item):
         child = item.getChild(0)
@@ -154,3 +121,51 @@ class PendingItem(TreeItem):
 def init():
     text = "GWT has a built-in <code>Tree</code> widget. The tree is focusable and has keyboard support as well."
     return SinkInfo("Trees", text, Trees)
+
+
+class FormulaBuilder(DialogWindow):
+    def __init__(self, operations):
+        DialogWindow.__init__(self, modal=True, close=True)
+
+        left = 100
+        top = 100
+
+        self.ops_with_buttons = [{"op": op, "button": Button(op.name, self)} for op in operations if op.available]
+        self.f = Formula([])
+        dock = DockPanel()
+        dock.setSpacing(20)
+
+        for owb in self.ops_with_buttons:
+            dock.add(owb['button'], DockPanel.NORTH)
+
+        # dock.setCellHorizontalAlignment(closeButton, HasAlignment.ALIGN_RIGHT)
+        dock.setWidth("300")
+
+        self.image = Image(latex_to_url(self.f.fill_with_placeholders().to_latex()))
+        dock.add(self.image, DockPanel.EAST)
+
+        self.doneButton=Button("Done",self)
+        dock.add(self.doneButton,DockPanel.SOUTH)
+
+        self.setText("opkop")
+        self.setPopupPosition(left, top)
+        self.setStyleAttribute("background-color", "#ffffff")
+        self.setStyleAttribute("color", "white")
+        self.setStyleAttribute("border-width", "5px")
+        self.setStyleAttribute("border-style", "solid")
+
+        self.setWidget(dock)
+
+    def onClick(self, sender):
+        if sender==self.doneButton:
+            self.hide()
+
+        op=None
+        for owb in self.ops_with_buttons:
+            if owb['button'] == sender:
+                self.setText(sender.getText())
+                op=owb['op']
+
+        if not self.f.is_closed():
+            self.f.add_one_op(op)
+            self.image.setUrl(latex_to_url(self.f.fill_with_placeholders().to_latex()))
