@@ -1,6 +1,5 @@
 from NormalForm import NormalForm
 from Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS
-from lion.Theorem import AX_EXT, AX_CHO
 
 
 class Formula:
@@ -234,12 +233,11 @@ class Formula:
 
 
 if __name__ == '__main__':
-    f = AX_EXT
+    from Theorem import AX_EXT, AX_CHO
+    f = AX_EXT.formula
     # f.rename_one_quantor()
     print(f.to_latex())
     print()
     print(f.simplify().to_cnf().to_latex())
     # print(AX_INF.to_latex())
-    print([var.name for var in AX_CHO.get_vars()])
-    print([var.name for var in AX_CHO.simplify().get_vars()])
-    print([var.name for var in AX_CHO.simplify().to_cnf().get_vars()])
+    print([var.name for var in AX_EXT.cnf.get_vars()])
