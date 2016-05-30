@@ -30,6 +30,13 @@ class Formula:
             i += 1
             depth += self.body[i].no_of_args - 1
 
+    def get_vars(self):
+        vars=[]
+        for op in self.body:
+            if op.type==Operation.VARIABLE and op not in vars:
+                vars.append(op)
+        return vars
+
     def parent(self, child):
         k = child - 1
         n = self.body[k].no_of_args - 1
@@ -38,9 +45,9 @@ class Formula:
             n += self.body[k].no_of_args - 1
         return k
 
-    def add_one_op(self, op):
+    def add_one_op(self, op,type='rel'):
         if len(self.body) == 0:
-            parent = NOT
+            parent = (NOT if type=='rel' else IN)
             no_of_child = 1
         else:
             k = len(self.body) - 1
@@ -250,3 +257,8 @@ if __name__ == '__main__':
     print()
     print(f.simplify().to_cnf().to_latex())
     # print(AX_INF.to_latex())
+    print([var.name for var in AX_CHO.get_vars()])
+    print([var.name for var in AX_CHO.simplify().get_vars()])
+    print([var.name for var in AX_CHO.simplify().to_cnf().get_vars()])
+
+    print(AX_CHO.simplify().to_cnf().substitute(Formula([A]),Formula([EMPTY])).to_latex())

@@ -1,7 +1,8 @@
 import urllib
 
-from pokpok.Formula import Formula
+from pokpok.Formula import Formula,AX_REG
 from pokpok.Operation import operations
+from pyjamas import Window
 from pyjamas.ui import HasAlignment
 from pyjamas.ui.DialogWindow import DialogWindow
 from pyjamas.ui.DockPanel import DockPanel
@@ -21,11 +22,18 @@ def latex_to_url(latex):
 
 class Trees(Sink):
     def __init__(self):
-        self.ops = [{"op": op, "proto": Proto(op.name)} for op in operations if op.available]
 
         Sink.__init__(self)
+
+        self.formula = AX_REG
+        self.image1 = Image(latex_to_url(self.formula.fill_with_placeholders().to_latex()))
+        self.cnf=self.formula.simplify().to_cnf()
+        self.image2 = Image(latex_to_url(self.cnf.to_latex()))
+        self.vars=self.cnf.get_vars()
+
+        self.vars_with_proto = [{"var": var, "proto": Proto(var.name)} for var in self.vars]
         self.fProto = [
-            Proto("Beethoven", [x["proto"] for x in self.ops])
+            Proto("Beethoven", [x["proto"] for x in self.vars_with_proto])
         ]
 
         self.fTree = Tree()
@@ -40,20 +48,22 @@ class Trees(Sink):
         self.panel.setSpacing(40)
         self.panel.add(self.fTree)
 
-        self.f = Formula([])
-
-        self.image1 = Image(latex_to_url(self.f.fill_with_placeholders().to_latex()))
-        self.image2 = Image()
         self.panel.add(self.image1)
         self.panel.add(self.image2)
 
         self.initWidget(self.panel)
 
     def onTreeItemSelected(self, item):
-        def after(formula):
-            self.image1.setUrl(latex_to_url(formula.fill_with_placeholders().to_latex()))
+        var=None
+        for vwb in self.vars_with_proto:
+            if vwb['proto'] == item.userObject:
+                var=vwb['var']
 
-        dlg = FormulaBuilder(operations,after)
+        def after(formula):
+            self.cnf=self.cnf.substitute(Formula([var]),formula)
+            self.image2.setUrl(latex_to_url(self.cnf.to_latex()))
+
+        dlg = FormulaBuilder(operations,after,type='expr')
 
         dlg.show()
 
@@ -115,7 +125,7 @@ def init():
 
 class FormulaBuilder(DialogWindow):
 
-    def __init__(self, operations,after):
+    def __init__(self, operations,after,type='rel'):
         DialogWindow.__init__(self, modal=True, close=True)
         self.formula = Formula([])
         self.after=after
@@ -162,6 +172,6 @@ class FormulaBuilder(DialogWindow):
                 op=owb['op']
 
         if not self.formula.is_closed():
-            self.formula.add_one_op(op)
+            self.formula.add_one_op(op,type)
             self.image.setUrl(latex_to_url(self.formula.fill_with_placeholders().to_latex()))
 

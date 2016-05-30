@@ -61,6 +61,22 @@ class NormalForm:
             while s():
                 pass
 
+    def get_vars(self):
+        vars = []
+        for tag in self.body:
+            for formula in tag:
+                for var in formula.get_vars():
+                    if var not in vars:
+                        vars.append(var)
+        return vars
+
+    def substitute(self, source, dest):
+        res = NormalForm(self.body)
+        for tag in res.body:
+            for n in range(len(tag)):
+                tag[n] = tag[n].substitute(source, dest)
+        return res
+
     def to_latex(self):
         return "\\begin{cases} " + " \\\\ ".join([" \qquad ".join([formula.to_latex() for formula in tag]) for tag in
                                                   self.body]) + " \end{cases}"
