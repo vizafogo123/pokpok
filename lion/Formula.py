@@ -1,7 +1,6 @@
 from NormalForm import NormalForm
-from Operation import PLACEHOLDER, AND, OR, NOT, A, B, IF, FORALL, EXISTS, C, D, Operation, IN, EQUI, EQUALS, PHI1, \
-    PHI2, \
-    E, F, EMPTY, G, H
+from Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS
+from lion.Theorem import AX_EXT, AX_CHO
 
 
 class Formula:
@@ -47,7 +46,7 @@ class Formula:
 
     def add_one_op(self, op,type='rel'):
         if len(self.body) == 0:
-            parent = (NOT if type=='rel' else IN)
+            parent = (NOT if type=='rel' else EQUALS)
             no_of_child = 1
         else:
             k = len(self.body) - 1
@@ -233,22 +232,6 @@ class Formula:
         return res
 
 
-AX_EMPT = Formula([NOT, EXISTS, A, IN, A, EMPTY])
-AX_EXT = Formula([FORALL, A, FORALL, B, IF, FORALL, C, EQUI, IN, C, A, IN, C, B, EQUALS, A, B])
-AX_REG = Formula(
-        [FORALL, A, IF, NOT, EQUALS, A, EMPTY, EXISTS, B, AND, IN, B, A, NOT, EXISTS, C, AND, IN, C, B, IN, C, A])
-AX_UNI = Formula([FORALL, A, EXISTS, B, FORALL, C, FORALL, D, IF, AND, IN, D, C, IN, C, A, IN, D, B])
-AX_SPEC = Formula([FORALL, A, EXISTS, B, FORALL, C, EQUI, IN, C, B, AND, IN, C, A, PHI1, C])
-AX_REP = Formula(
-        [FORALL, A, IF, FORALL, B, IF, IN, B, A, EXISTS, C, PHI2, B, C, EXISTS, D, FORALL, E, IF, IN, E, A, EXISTS, F,
-         AND, IN, F, D, PHI2, E, F])
-AX_INF = Formula(
-        [EXISTS, A, AND, IN, EMPTY, A, FORALL, B, IF, IN, B, A, EXISTS, C, AND, IN, C, A, FORALL, D, EQUI, IN, D, C, OR,
-         EQUALS, D, B, IN, D, B])
-AX_CHO = Formula(
-        [FORALL, A, IF, AND, NOT, IN, EMPTY, A, FORALL, B, IF, IN, B, A, FORALL, C, IF, IN, C, A, NOT, EXISTS, D, AND,
-         IN, D, B, IN, D, C, EXISTS, E, FORALL, F, IF, IN, F, A, EXISTS, G, AND, AND, IN, G, E, IN, G, F, FORALL, H, IF,
-         AND, IN, H, E, IN, H, F, EQUALS, H, G])
 
 if __name__ == '__main__':
     f = AX_EXT
@@ -260,5 +243,3 @@ if __name__ == '__main__':
     print([var.name for var in AX_CHO.get_vars()])
     print([var.name for var in AX_CHO.simplify().get_vars()])
     print([var.name for var in AX_CHO.simplify().to_cnf().get_vars()])
-
-    print(AX_CHO.simplify().to_cnf().substitute(Formula([A]),Formula([EMPTY])).to_latex())
