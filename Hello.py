@@ -1,45 +1,43 @@
 
 import pyjd # this is dummy in pyjs.
+
+from pyjamas.ui.ListBox import ListBox
 from pyjamas.ui.RootPanel import RootPanel
 from pyjamas.ui.Button import Button
-from pyjamas.ui.HTML import HTML
-from pyjamas.ui.Label import Label
-from pyjamas import Window
-from pyjamas.ui.TextArea import TextArea
-from pyjamas.ui.Anchor import Anchor
 from pyjamas.ui.Image import Image
 
-from pokpok import Formula
+from pokpok.Theorem import axioms
 import urllib
 
+def latex_to_url(latex):
+    return 'http://latex.codecogs.com/gif.download?' + urllib.quote(latex)
 
 
 
 def greet(fred):
     global text_area
-    fred.setText("No, really click me!")
 
     #Window.alert(text_area.getText())
-    a3 = Image('http://latex.codecogs.com/gif.download?'+urllib.quote(text_area.getText()))
-    RootPanel().add(a3)
 
+    f=axioms[combo.getSelectedIndex()]
+    image_formula.setUrl(latex_to_url(f.formula.to_latex()))
+    image_cnf.setUrl(latex_to_url(f.cnf.to_latex()))
 
 if __name__ == '__main__':
     pyjd.setup("public/Hello.html?fred=foo#me")
     b = Button("Click me", greet, StyleName='teststyle')
 
-    text_area = TextArea()
-    text_area.setCharacterWidth(80)
-    text_area.setVisibleLines(8)
+    combo = ListBox(VisibleItemCount=1)
+    for ax in axioms:
+        combo.addItem(ax.name)
 
-    a3 = Image()
-    RootPanel().add(a3)
-
+    image_formula = Image()
+    image_cnf = Image()
+    RootPanel().add(combo)
     RootPanel().add(b)
-    # RootPanel().add(h)
-    # RootPanel().add(l)
-    RootPanel().add(text_area)
+    RootPanel().add(image_formula)
+    RootPanel().add(image_cnf)
 
-    RootPanel().add(Image('http://latex.codecogs.com/gif.download?'+urllib.quote(Formula.AX_CHO.to_latex())))
+    # RootPanel().add(Image('http://latex.codecogs.com/gif.download?'+urllib.quote(Formula.AX_CHO.to_latex())))
     # RootPanel().add(base)
     pyjd.run()

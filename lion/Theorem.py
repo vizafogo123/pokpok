@@ -1,12 +1,12 @@
-from lion.Formula import Formula
-from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, PHI1, PHI2, F, E, G, OR, H
-from lion.Operation import NOT, A
+from Formula import Formula
+from Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, PHI1, PHI2, F, E, G, OR, H
+from Operation import NOT, A
 
 
 class Theorem:
     def __init__(self,formula,name):
         self.formula=formula
-        self.cnf=self.formula.to_cnf()
+        self.cnf=self.formula.simplify().to_cnf()
         self.name=name
 
 

@@ -10,8 +10,6 @@ import urllib
 from lion.Formula import Formula
 
 
-def latex_to_url(latex):
-    return 'http://latex.codecogs.com/gif.download?' + urllib.quote(latex)
 
 
 class FormulaBuilder(DialogWindow):
