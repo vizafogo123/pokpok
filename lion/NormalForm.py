@@ -86,3 +86,6 @@ class NormalForm:
     def to_latex(self):
         return "\\begin{cases} " + " \\\\ ".join([" \qquad ".join([formula.to_latex() for formula in tag]) for tag in
                                                   self.body]) + " \end{cases}"
+
+    def get_latex_vectors(self):
+        return [[formula.to_latex() for formula in tag] for tag in self.body]
