@@ -1,5 +1,5 @@
-from NormalForm import NormalForm
-from Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS
+from lion.NormalForm import NormalForm
+from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS
 
 
 class Formula:

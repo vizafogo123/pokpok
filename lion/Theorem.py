@@ -1,6 +1,6 @@
-from Formula import Formula
-from Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, PHI1, PHI2, F, E, G, OR, H
-from Operation import NOT, A
+from lion.Formula import Formula
+from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, PHI1, PHI2, F, E, G, OR, H
+from lion.Operation import NOT, A
 
 
 class Theorem:
