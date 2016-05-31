@@ -3,6 +3,9 @@ class NormalForm:
         self.body = [[formula.deepcopy() for formula in tag] for tag in body]
         self.simplify()
 
+    def __add__(self, other):
+        return NormalForm(self.body+other.body)
+
     def deepcopy(self):
         return NormalForm(self.body)
 
@@ -32,7 +35,7 @@ class NormalForm:
     def remove_supersets(self):
         for x in range(len(self.body)):
             for y in range(x + 1, len(self.body)):
-                if set(self.body[y]) > set(self.body[x]):
+                if set(self.body[y]) >= set(self.body[x]):
                     del self.body[y]
                     return True
                 if set(self.body[x]) > set(self.body[y]):

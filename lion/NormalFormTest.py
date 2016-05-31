@@ -54,3 +54,4 @@ b=a.deepcopy()
 b.body[0][0]=pok('B')
 print(a.to_latex())
 
+print((a+b).printout())
