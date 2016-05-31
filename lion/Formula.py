@@ -1,16 +1,19 @@
 from lion.NormalForm import NormalForm
-from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS
+from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS, A, B, C
 
 
 class Formula:
     def __init__(self, body):
-        self.body = body
+        self.body = list(body)
 
     def __eq__(self, other):
         return self.body == other.body
 
     def __hash__(self):
         return hash(tuple(self.body))
+
+    def deepcopy(self):
+        return Formula(self.body)
 
     def is_negation_of(self, other):
         return ([NOT] + self.body if self.body[0] != NOT else self.body[1:]) == other.body
@@ -234,10 +237,8 @@ class Formula:
 
 if __name__ == '__main__':
     from Theorem import AX_EXT, AX_CHO
-    f = AX_EXT.formula
-    # f.rename_one_quantor()
-    print(f.to_latex())
-    print()
-    print(f.simplify().to_cnf().to_latex())
-    # print(AX_INF.to_latex())
-    print([var.name for var in AX_EXT.cnf.get_vars()])
+    f=Formula([A,B,C])
+    g=f.deepcopy()
+    g.body[0]=B
+    print(f.dump())
+

@@ -22,6 +22,9 @@ class pok:
     def to_latex(self):
         return self.c
 
+    def deepcopy(self):
+        return pok(self.c)
+
 
 a = NormalForm(
         [[pok('A'), pok('B'), pok('A'), pok('A')], [pok('C'), pok('C'), pok('A'), pok('B'), pok('A')], [pok('X')],
@@ -45,4 +48,9 @@ print(a.to_latex())
 e=NormalForm([[Formula([A]),Formula([B])],[Formula([A])]])
 e.simplify()
 print(e.printout())
+
+a=NormalForm([[pok('A'),pok('B')],[pok('C')]])
+b=a.deepcopy()
+b.body[0][0]=pok('B')
+print(a.to_latex())
 

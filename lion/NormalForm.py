@@ -1,7 +1,10 @@
 class NormalForm:
     def __init__(self, body):
-        self.body = body
+        self.body = [[formula.deepcopy() for formula in tag] for tag in body]
         self.simplify()
+
+    def deepcopy(self):
+        return NormalForm(self.body)
 
     def printout(self):
         return '\n'.join(['\t'.join([str(x) for x in y]) for y in self.body])
