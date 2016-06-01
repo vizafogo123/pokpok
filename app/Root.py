@@ -1,8 +1,11 @@
 from pyjamas import Window
 from pyjamas.ui import HasHorizontalAlignment
 from pyjamas.ui.Button import Button
+from pyjamas.ui.DockPanel import DockPanel
 from pyjamas.ui.FlexTable import FlexTable
 from pyjamas.ui.Grid import Grid
+from pyjamas.ui.HTML import HTML
+from pyjamas.ui.HorizontalPanel import HorizontalPanel
 from pyjamas.ui.Image import Image
 from pyjamas.ui.ListBox import ListBox
 from pyjamas.ui.RootPanel import RootPanel
@@ -45,9 +48,28 @@ class Root():
                 outer.setWidget(i, j, Image(latex_to_url(kop[i][j])))
 
         button0 = Button("Begin", self.jnbhu, StyleName='teststyle')
-        RootPanel().add(button0)
-        RootPanel().add(outer)
 
-        self.TheoremApplier=TheoremApplier(axioms)
-        RootPanel().add(self.TheoremApplier)
+        self.image=Image()
+        self.cnf=NormalForm([])
+
+        def after(cnf):
+            self.cnf+=cnf
+            self.image.setUrl(latex_to_url(self.cnf.to_latex()))
+            if self.cnf.is_degenerate():
+                Window.alert("SADAT ABDEL")
+
+        self.TheoremApplier=TheoremApplier(axioms,after)
+
+
+        # h=FlexTable()
+        # h.setWidget(0,0,outer)
+        # h.setWidget(0,1,self.TheoremApplier)
+        h=HorizontalPanel()
+        h.add(self.image)
+        h.add(self.TheoremApplier)
+
+        RootPanel().add(button0)
+        # RootPanel().add(outer)
+
+        RootPanel().add(h)
 

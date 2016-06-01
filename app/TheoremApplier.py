@@ -12,9 +12,10 @@ from lion.Operation import operations, Operation
 
 
 class TheoremApplier(VerticalPanel):
-    def __init__(self,theorems):
+    def __init__(self,theorems,after):
         VerticalPanel.__init__(self)
         self.theorems = theorems
+        self.after=after
 
         self.button1 = Button("Select theorem", self.select_theorem, StyleName='teststyle')
         self.button2 = Button("Substitute variable", self.substitute_variable, StyleName='teststyle')
@@ -79,10 +80,7 @@ class TheoremApplier(VerticalPanel):
         a.show()
 
     def add_to_cnf(self):
-        self.cnf += self.current_cnf
-        self.image_cnf.setUrl(latex_to_url(self.cnf.to_latex()))
-        if self.cnf.is_degenerate():
-            Window.alert("SADAT ABDEL")
+        self.after(self.current_cnf)
 
     def add_theorem(self,theorem):
         self.theorems.append(theorem)
