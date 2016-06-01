@@ -1,5 +1,6 @@
 from lion.Formula import Formula
-from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, PHI1, PHI2, F, E, G, OR, H
+from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, PHI1, PHI2, F, E, G, OR, H, \
+    operations, Operation
 from lion.Operation import NOT, A
 
 
@@ -9,6 +10,14 @@ class Theorem:
         self.cnf=self.formula.simplify().to_cnf()
         self.name=name
 
+    @staticmethod
+    def list_of_ops(theorems):
+        res=[]
+        for theorem in theorems:
+            for op in theorem.cnf.list_of_ops():
+                if op not in res:
+                    res.append(op)
+        return res
 
 AX_EMPT = Theorem(Formula([NOT, EXISTS, A, IN, A, EMPTY]),'ax_empt')
 AX_EXT = Theorem(Formula([FORALL, A, FORALL, B, IF, FORALL, C, EQUI, IN, C, A, IN, C, B, EQUALS, A, B]),'ax_ext')
@@ -28,3 +37,7 @@ AX_CHO = Theorem(Formula(
          AND, IN, H, E, IN, H, F, EQUALS, H, G]),'ax_cho')
 
 axioms=[AX_EMPT,AX_EXT,AX_REG,AX_UNI,AX_SPEC,AX_REP,AX_INF,AX_CHO]
+
+if __name__=='__main__':
+    print(len(Theorem.list_of_ops(axioms)))
+    print([op.type for op in Theorem.list_of_ops(axioms)])

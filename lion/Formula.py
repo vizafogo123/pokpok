@@ -233,6 +233,12 @@ class Formula:
             k -= 1
         return res
 
+    def list_of_ops(self):
+        res=[]
+        for op in self.body:
+            if op not in res:
+                res.append(op)
+        return res
 
 
 if __name__ == '__main__':

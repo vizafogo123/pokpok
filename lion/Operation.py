@@ -6,12 +6,13 @@ class Operation:
     EXPRESSION = 4
     PLACEHOLDER = 5
 
-    def __init__(self, no_of_args, print_scheme, name, type, available=True):
+    def __init__(self, no_of_args, print_scheme, name, type, available=True, is_function_scheme=False):
         self.no_of_args = no_of_args
         self.print_scheme = print_scheme.strip() + ' '
         self.name = name
         self.available = available
         self.type = type
+        self.is_function_scheme=is_function_scheme
 
     def printout(self, list_of_args):
         return self.print_scheme.format(*list_of_args)
@@ -70,8 +71,8 @@ F = Operation(0, "f", "f", Operation.VARIABLE)
 G = Operation(0, "g", "g", Operation.VARIABLE)
 H = Operation(0, "h", "h", Operation.VARIABLE)
 
-PHI1=Operation(1, "\phi \left( {} \\right)", "phi1", Operation.RELATION,available=False)
-PHI2=Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION,available=False)
+PHI1=Operation(1, "\phi \left( {} \\right)", "phi1", Operation.RELATION,available=False,is_function_scheme=True)
+PHI2=Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION,available=False,is_function_scheme=True)
 
 PLACEHOLDER = Operation(0, "\Box", "placeholder", Operation.PLACEHOLDER, available=False)
 

@@ -89,3 +89,12 @@ class NormalForm:
 
     def get_latex_vectors(self):
         return [[formula.to_latex() for formula in tag] for tag in self.body]
+
+    def list_of_ops(self):
+        res=[]
+        for tag in self.body:
+            for formula in tag:
+                for op in formula.list_of_ops():
+                    if op not in res:
+                        res.append(op)
+        return res

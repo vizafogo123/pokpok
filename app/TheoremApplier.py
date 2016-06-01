@@ -9,13 +9,14 @@ from pyjamas.ui.ListBox import ListBox
 from lion.Formula import Formula
 from lion.NormalForm import NormalForm
 from lion.Operation import operations, Operation
+from lion.Theorem import Theorem
 
 
 class TheoremApplier(VerticalPanel):
-    def __init__(self,theorems,after):
+    def __init__(self, theorems, after):
         VerticalPanel.__init__(self)
         self.theorems = theorems
-        self.after=after
+        self.after = after
 
         self.button1 = Button("Select theorem", self.select_theorem, StyleName='teststyle')
         self.button2 = Button("Substitute variable", self.substitute_variable, StyleName='teststyle')
@@ -46,7 +47,6 @@ class TheoremApplier(VerticalPanel):
         self.fill_combo_theorem()
         # self.fill_combo_variable()
 
-
     def fill_combo_variable(self):
         self.combo_variable.clear()
         for var in self.current_vars:
@@ -75,13 +75,16 @@ class TheoremApplier(VerticalPanel):
             del self.current_vars[self.combo_variable.getSelectedIndex()]
             self.fill_combo_variable()
 
-        a = FormulaBuilder([op for op in operations if op.available and op.type == Operation.EXPRESSION], after,
-                           type='expr')
+        # Window.alert(Theorem.set_of_ops(self.theorems))
+
+        a = FormulaBuilder(
+            [op for op in Theorem.list_of_ops(self.theorems) if op.available and op.type == Operation.EXPRESSION], after,
+            type='expr')
         a.show()
 
     def add_to_cnf(self):
         self.after(self.current_cnf)
 
-    def add_theorem(self,theorem):
+    def add_theorem(self, theorem):
         self.theorems.append(theorem)
         self.fill_combo_theorem()
