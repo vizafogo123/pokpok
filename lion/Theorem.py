@@ -9,6 +9,12 @@ class Theorem:
         self.formula=formula
         self.cnf=self.formula.simplify().to_cnf()
         self.name=name
+        self.rename_special_ops()
+
+    def rename_special_ops(self):
+        for op in self.cnf.list_of_ops():
+            if op not in operations:
+                op.name=op.name+" in "+self.name
 
     @staticmethod
     def list_of_ops(theorems):

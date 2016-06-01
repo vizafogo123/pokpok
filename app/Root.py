@@ -33,15 +33,7 @@ class Root():
     def start(self):
 
         kop=AX_CHO.cnf.get_latex_vectors()
-        # Window.alert(kop)
         outer = FlexTable(BorderWidth="1")
-
-        # outer.setWidget(0, 0, Image("rembrandt/LaMarcheNocturne.jpg"))
-        # outer.getFlexCellFormatter().setColSpan(0, 0, 2)
-        # outer.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER)
-        #
-        # outer.setHTML(1, 0, "Look to the right...<br>That's a nested table component ->")
-        # outer.getCellFormatter().setColSpan(1, 1, 2)
 
         for i in range(len(kop)):
             for j in range(len(kop[i])):
@@ -61,12 +53,11 @@ class Root():
         self.TheoremApplier=TheoremApplier(axioms,after)
 
 
-        # h=FlexTable()
-        # h.setWidget(0,0,outer)
-        # h.setWidget(0,1,self.TheoremApplier)
         h=HorizontalPanel()
+        h.setWidth("100%")
         h.add(self.image)
         h.add(self.TheoremApplier)
+        h.setCellWidth(self.image,"50%")
 
         RootPanel().add(button0)
         # RootPanel().add(outer)

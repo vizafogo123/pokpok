@@ -15,6 +15,13 @@ class Formula:
     def deepcopy(self):
         return Formula(self.body)
 
+    def list_of_ops(self):
+        res=[]
+        for op in self.body:
+            if op not in res:
+                res.append(op)
+        return res
+
     def is_negation_of(self, other):
         return ([NOT] + self.body if self.body[0] != NOT else self.body[1:]) == other.body
 
@@ -233,12 +240,6 @@ class Formula:
             k -= 1
         return res
 
-    def list_of_ops(self):
-        res=[]
-        for op in self.body:
-            if op not in res:
-                res.append(op)
-        return res
 
 
 if __name__ == '__main__':
