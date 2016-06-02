@@ -15,12 +15,12 @@ from lion.Theorem import Theorem
 class TheoremApplier(VerticalPanel):
     def __init__(self, theorems, after):
         VerticalPanel.__init__(self)
-        self.theorems = theorems
+        self.theorems = list(theorems)
         self.after = after
 
         self.button1 = Button("Select theorem", self.select_theorem, StyleName='teststyle')
-        self.button2 = Button("Substitute variable", self.substitute_variable, StyleName='teststyle')
-        self.button3 = Button("Add", self.add_to_cnf, StyleName='teststyle')
+        self.button2 = Button("Substitute variable", self.substitute_button_click, StyleName='teststyle')
+        self.button3 = Button("Add", self.add_button_click, StyleName='teststyle')
 
         self.combo_theorem = ListBox(VisibleItemCount=1)
         self.combo_variable = ListBox(VisibleItemCount=1)
@@ -28,6 +28,7 @@ class TheoremApplier(VerticalPanel):
         self.image_formula = Image()
         self.image_current_cnf = Image()
         self.image_cnf = Image()
+        self.current_formula=None
 
         self.add(self.combo_theorem)
         self.add(self.button1)
@@ -57,32 +58,61 @@ class TheoremApplier(VerticalPanel):
         for theorem in self.theorems:
             self.combo_theorem.addItem(theorem.name)
 
+    def fill_image_current_cnf(self):
+        self.image_current_cnf.setUrl(latex_to_url(self.current_cnf.to_latex()))
+
+    def fill_image_formula(self):
+        self.image_formula.setUrl(latex_to_url(self.current_theorem.formula.to_latex()))
+
     def select_theorem(self):
         self.current_theorem = self.theorems[self.combo_theorem.getSelectedIndex()]
         self.current_cnf = self.current_theorem.cnf.deepcopy()
-        self.image_formula.setUrl(latex_to_url(self.current_theorem.formula.to_latex()))
-        self.image_current_cnf.setUrl(latex_to_url(self.current_cnf.to_latex()))
+        self.current_formula=self.current_theorem.formula.simplify()
+        self.fill_image_formula()
+        self.fill_image_current_cnf()
 
-        self.current_vars = self.current_cnf.get_vars()
+        self.current_vars = self.current_cnf.get_vars()+self.current_cnf.get_function_schemes()
         self.fill_combo_variable()
 
-    def substitute_variable(self):
-        var = self.current_vars[self.combo_variable.getSelectedIndex()]
+    def substitute_button_click(self):
+        op = self.current_vars[self.combo_variable.getSelectedIndex()]
+        if op.type==Operation.VARIABLE:
+            self.substitute_variable(op)
+        else:
+            self.substitute_function_scheme(op)
+
+    def substitute_variable(self,var):
 
         def after(formula):
-            self.current_cnf = self.current_cnf.substitute(Formula([var]), formula)
-            self.image_current_cnf.setUrl(latex_to_url(self.current_cnf.to_latex()))
+            self.current_formula=self.current_formula.substitute(Formula([var]), formula)
+            self.current_cnf = self.current_formula.to_cnf()
+            self.fill_image_current_cnf()
             del self.current_vars[self.combo_variable.getSelectedIndex()]
             self.fill_combo_variable()
-
-        # Window.alert(Theorem.set_of_ops(self.theorems))
 
         a = FormulaBuilder(
             [op for op in Theorem.list_of_ops(self.theorems) if op.available and op.type == Operation.EXPRESSION], after,
             type='expr')
         a.show()
 
-    def add_to_cnf(self):
+    def substitute_function_scheme(self,fun):
+        vars=[]
+        for _ in range(fun.no_of_args):
+            vars.append(Operation.get_new_variable(vars))
+
+        def after(formula):
+            self.current_formula=self.current_formula.substitute_definition(Formula([fun]+vars), formula).simplify()
+            self.current_cnf = self.current_formula.to_cnf()
+            self.fill_image_current_cnf()
+            del self.current_vars[self.combo_variable.getSelectedIndex()]
+            self.fill_combo_variable()
+
+        a = FormulaBuilder(
+            vars+[op for op in Theorem.list_of_ops(self.theorems) if op.available], after,
+            type='rel')
+        a.show()
+
+    def add_button_click(self):
         self.after(self.current_cnf)
 
     def add_theorem(self, theorem):

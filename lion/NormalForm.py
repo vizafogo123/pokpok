@@ -76,11 +76,27 @@ class NormalForm:
                         vars.append(var)
         return vars
 
+    def get_function_schemes(self):
+        vars = []
+        for tag in self.body:
+            for formula in tag:
+                for op in formula.get_function_schemes():
+                    if op not in vars:
+                        vars.append(op)
+        return vars
+
     def substitute(self, source, dest):
         res = NormalForm(self.body)
         for tag in res.body:
             for n in range(len(tag)):
                 tag[n] = tag[n].substitute(source, dest)
+        return res
+
+    def substitute_definition(self, function, definition):
+        res = NormalForm(self.body)
+        for tag in res.body:
+            for n in range(len(tag)):
+                tag[n] = tag[n].substitute_definition(function, definition)
         return res
 
     def to_latex(self):

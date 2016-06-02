@@ -45,6 +45,13 @@ class Formula:
                 vars.append(op)
         return vars
 
+    def get_function_schemes(self):
+        vars=[]
+        for op in self.body:
+            if op.is_function_scheme and op not in vars:
+                vars.append(op)
+        return vars
+
     def parent(self, child):
         k = child - 1
         n = self.body[k].no_of_args - 1
@@ -244,6 +251,7 @@ class Formula:
 
 if __name__ == '__main__':
     from Theorem import AX_EXT, AX_CHO
+    print(Operation.get_new_variable([]).no_of_args)
     f=Formula([A,B,C])
     g=f.deepcopy()
     g.body[0]=B

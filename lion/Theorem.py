@@ -18,7 +18,7 @@ class Theorem:
 
     @staticmethod
     def list_of_ops(theorems):
-        res=[]
+        res=operations
         for theorem in theorems:
             for op in theorem.cnf.list_of_ops():
                 if op not in res:
