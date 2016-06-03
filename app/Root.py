@@ -1,18 +1,12 @@
 from pyjamas import Window
-from pyjamas.ui import HasHorizontalAlignment
 from pyjamas.ui.Button import Button
-from pyjamas.ui.DockPanel import DockPanel
 from pyjamas.ui.FlexTable import FlexTable
-from pyjamas.ui.Grid import Grid
-from pyjamas.ui.HTML import HTML
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
-from pyjamas.ui.Image import Image
-from pyjamas.ui.ListBox import ListBox
 from pyjamas.ui.RootPanel import RootPanel
 
-from app.FormulaBuilder import latex_to_url, FormulaBuilder
+from app.FormulaBuilder import FormulaBuilder
 from app.TheoremApplier import TheoremApplier
-from lion.Formula import Formula
+from app.Utils import fill_flextable_with_cnf
 from lion.NormalForm import NormalForm
 from lion.Operation import Operation, operations
 from lion.Theorem import axioms, Theorem, AX_REG, AX_CHO
@@ -39,11 +33,7 @@ class Root():
             Window.alert("SADAT ABDEL")
 
     def refresh_cnf_table(self):
-        self.cnf_table.clear()
-        latex_vectors = self.cnf.get_latex_vectors()
-        for i in range(len(latex_vectors)):
-            for j in range(len(latex_vectors[i])):
-                self.cnf_table.setWidget(i, j, Image(latex_to_url(latex_vectors[i][j])))
+        fill_flextable_with_cnf(self.cnf_table, self.cnf)
 
     def start(self):
 

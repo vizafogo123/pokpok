@@ -5,13 +5,8 @@ from pyjamas.ui.HTML import HTML
 from pyjamas.ui.Image import Image
 from pyjamas.ui import HasAlignment
 
-import urllib
-
+from app.Utils import latex_to_url
 from lion.Formula import Formula
-
-
-def latex_to_url(latex):
-    return 'http://latex.codecogs.com/gif.download?' + urllib.quote(latex)
 
 
 class FormulaBuilder(DialogWindow):

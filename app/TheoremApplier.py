@@ -1,11 +1,13 @@
 from pyjamas import Window
+from pyjamas.ui.FlexTable import FlexTable
 from pyjamas.ui.VerticalPanel import VerticalPanel
 
-from app.FormulaBuilder import latex_to_url, FormulaBuilder
+from app.FormulaBuilder import FormulaBuilder
 from pyjamas.ui.Button import Button
 from pyjamas.ui.Image import Image
 from pyjamas.ui.ListBox import ListBox
 
+from app.Utils import latex_to_url, fill_flextable_with_cnf
 from lion.Formula import Formula
 from lion.NormalForm import NormalForm
 from lion.Operation import operations, Operation
@@ -26,7 +28,7 @@ class TheoremApplier(VerticalPanel):
         self.combo_variable = ListBox(VisibleItemCount=1)
 
         self.image_formula = Image()
-        self.image_current_cnf = Image()
+        self.image_current_cnf = FlexTable(BorderWidth="1")
         self.image_cnf = Image()
         self.current_formula=None
 
@@ -59,7 +61,7 @@ class TheoremApplier(VerticalPanel):
             self.combo_theorem.addItem(theorem.name)
 
     def fill_image_current_cnf(self):
-        self.image_current_cnf.setUrl(latex_to_url(self.current_cnf.to_latex()))
+        fill_flextable_with_cnf(self.image_current_cnf,self.current_cnf)
 
     def fill_image_formula(self):
         self.image_formula.setUrl(latex_to_url(self.current_theorem.formula.to_latex()))
