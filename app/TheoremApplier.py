@@ -67,7 +67,7 @@ class TheoremApplier(VerticalPanel):
 
     def refresh_controls(self):
         self.fill_combo_variable()
-        self.fill_combo_theorem()
+        # self.fill_combo_theorem()
         self.fill_image_formula()
         self.fill_image_current_cnf()
         self.button3.setEnabled(len(self.current_vars) == 0)
@@ -94,7 +94,6 @@ class TheoremApplier(VerticalPanel):
         self.refresh_controls()
 
     def substitute_variable(self,var):
-
         def after(formula):
             self.current_cnf = self.current_cnf.substitute(Formula([var]), formula)
             del self.current_vars[self.combo_variable.getSelectedIndex()]
@@ -121,12 +120,12 @@ class TheoremApplier(VerticalPanel):
             type='rel')
         a.show()
 
+    def add_theorem(self, theorem):
+        self.theorems.append(theorem)
+        self.fill_combo_theorem()
+
     def add_button_click(self):
         if not self.current_theorem.is_theorem_scheme():
             self.after(self.current_cnf)
         else:
             self.add_theorem(Theorem(self.current_formula,"oihjio"))
-
-    def add_theorem(self, theorem):
-        self.theorems.append(theorem)
-        self.fill_combo_theorem()

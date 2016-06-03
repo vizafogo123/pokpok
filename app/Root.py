@@ -20,7 +20,9 @@ from lion.Theorem import axioms, Theorem, AX_REG, AX_CHO
 
 class Root():
     def __init__(self):
-        pass
+        # self.image=Image()
+        self.cnf=NormalForm([])
+        self.cnf_table = FlexTable(BorderWidth="1")
 
     def jnbhu(self):
         def after(formula):
@@ -29,38 +31,34 @@ class Root():
         a = FormulaBuilder([op for op in operations if op.available], after, type='rel')
         a.show()
 
+    def onReceivingCnf(self,cnf):
+        self.cnf += cnf
+        # self.image.setUrl(latex_to_url(self.cnf.to_latex()))
+        self.refresh_cnf_table()
+        if self.cnf.is_degenerate():
+            Window.alert("SADAT ABDEL")
+
+    def refresh_cnf_table(self):
+        self.cnf_table.clear()
+        latex_vectors = self.cnf.get_latex_vectors()
+        for i in range(len(latex_vectors)):
+            for j in range(len(latex_vectors[i])):
+                self.cnf_table.setWidget(i, j, Image(latex_to_url(latex_vectors[i][j])))
 
     def start(self):
 
-        kop=AX_CHO.cnf.get_latex_vectors()
-        outer = FlexTable(BorderWidth="1")
-
-        for i in range(len(kop)):
-            for j in range(len(kop[i])):
-                outer.setWidget(i, j, Image(latex_to_url(kop[i][j])))
-
         button0 = Button("Begin", self.jnbhu, StyleName='teststyle')
 
-        self.image=Image()
-        self.cnf=NormalForm([])
-
-        def after(cnf):
-            self.cnf+=cnf
-            self.image.setUrl(latex_to_url(self.cnf.to_latex()))
-            if self.cnf.is_degenerate():
-                Window.alert("SADAT ABDEL")
-
-        self.TheoremApplier=TheoremApplier(axioms,after)
-
+        self.TheoremApplier=TheoremApplier(axioms,self.onReceivingCnf)
 
         h=HorizontalPanel()
         h.setWidth("100%")
-        h.add(self.image)
+        h.add(self.cnf_table)
         h.add(self.TheoremApplier)
-        h.setCellWidth(self.image,"50%")
+        h.setCellWidth(self.cnf_table,"50%")
 
         RootPanel().add(button0)
-        # RootPanel().add(outer)
+        # RootPanel().add(self.cnf_table)
 
         RootPanel().add(h)
 
