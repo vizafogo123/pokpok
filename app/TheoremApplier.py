@@ -64,16 +64,25 @@ class TheoremApplier(VerticalPanel):
     def fill_image_formula(self):
         self.image_formula.setUrl(latex_to_url(self.current_theorem.formula.to_latex()))
 
+
+    def refresh_controls(self):
+        self.fill_combo_variable()
+        self.fill_combo_theorem()
+        self.fill_image_formula()
+        self.fill_image_current_cnf()
+        self.button3.setEnabled(len(self.current_vars) == 0)
+        self.button2.setText(
+            "Substitute variable" if not self.current_theorem.is_theorem_scheme() else "Substitute relation scheme")
+
     def select_theorem(self):
         self.current_theorem = self.theorems[self.combo_theorem.getSelectedIndex()]
         self.current_cnf = self.current_theorem.cnf.deepcopy()
         self.current_formula=self.current_theorem.formula.simplify()
-        self.fill_image_formula()
-        self.fill_image_current_cnf()
 
         self.current_vars = (self.current_cnf.get_vars() if not self.current_theorem.is_theorem_scheme()
                                  else self.current_cnf.get_function_schemes())
-        self.fill_combo_variable()
+        self.refresh_controls()
+
 
     def substitute_button_click(self):
         op = self.current_vars[self.combo_variable.getSelectedIndex()]
@@ -82,13 +91,14 @@ class TheoremApplier(VerticalPanel):
         else:
             self.substitute_function_scheme(op)
 
+        self.refresh_controls()
+
     def substitute_variable(self,var):
 
         def after(formula):
             self.current_cnf = self.current_cnf.substitute(Formula([var]), formula)
-            self.fill_image_current_cnf()
             del self.current_vars[self.combo_variable.getSelectedIndex()]
-            self.fill_combo_variable()
+            self.refresh_controls()
 
         a = FormulaBuilder(
             [op for op in Theorem.list_of_ops(self.theorems) if op.available and op.type == Operation.EXPRESSION], after,
@@ -103,9 +113,8 @@ class TheoremApplier(VerticalPanel):
         def after(formula): #TODO: 1
             self.current_formula=self.current_formula.substitute_definition(Formula([fun]+vars), formula).simplify()
             self.current_cnf = self.current_formula.to_cnf()
-            self.fill_image_current_cnf()
             del self.current_vars[self.combo_variable.getSelectedIndex()]
-            self.fill_combo_variable()
+            self.refresh_controls()
 
         a = FormulaBuilder(
             vars+[op for op in Theorem.list_of_ops(self.theorems) if op.available], after,

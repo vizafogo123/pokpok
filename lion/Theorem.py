@@ -9,11 +9,11 @@ class Theorem:
         self.formula = formula
         self.cnf = self.formula.simplify().to_cnf()
         self.name = name
-        self.rename_special_ops()
+        self.rename_constructed_ops()
 
-    def rename_special_ops(self):
+    def rename_constructed_ops(self):
         for op in self.cnf.list_of_ops():
-            if op not in operations:
+            if op.is_constructed_op:
                 op.name += " in " + self.name
                 op.print_scheme = op.print_scheme[:1] + "_{{" + self.name + "}} " + op.print_scheme[1:]
 
@@ -36,7 +36,7 @@ AX_REG = Theorem(Formula(
     [FORALL, A, IF, NOT, EQUALS, A, EMPTY, EXISTS, B, AND, IN, B, A, NOT, EXISTS, C, AND, IN, C, B, IN, C, A]),
     'ax-reg')
 AX_UNI = Theorem(Formula([FORALL, A, EXISTS, B, FORALL, C, FORALL, D, IF, AND, IN, D, C, IN, C, A, IN, D, B]),
-                 'ax-uni')  # TODO: opsak
+                 'ax-uni')
 AX_SPEC = Theorem(Formula([FORALL, A, EXISTS, B, FORALL, C, EQUI, IN, C, B, AND, IN, C, A, PHI1, C]), 'ax-spec')
 AX_REP = Theorem(Formula(
     [FORALL, A, IF, FORALL, B, IF, IN, B, A, EXISTS, C, PHI2, B, C, EXISTS, D, FORALL, E, IF, IN, E, A, EXISTS, F,
@@ -56,3 +56,4 @@ if __name__ == '__main__':
     print(len(Theorem.list_of_ops(axioms)))
     print([op.type for op in Theorem.list_of_ops(axioms)])
     print(AX_REP.is_theorem_scheme())
+    print(AX_INF.cnf.to_latex())
