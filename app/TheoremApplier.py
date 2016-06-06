@@ -10,14 +10,15 @@ from pyjamas.ui.ListBox import ListBox
 from app.Utils import latex_to_url, fill_flextable_with_cnf
 from lion.Formula import Formula
 from lion.NormalForm import NormalForm
-from lion.Operation import operations, Operation
+from lion.Operation import base_operations, Operation
 from lion.Theorem import Theorem
 
 
 class TheoremApplier(VerticalPanel):
-    def __init__(self, theorems, after):
+    def __init__(self, proof_state, after):
         VerticalPanel.__init__(self)
-        self.theorems = list(theorems)
+        self.proof_state=proof_state
+        self.theorems = proof_state.theorems
         self.after = after
 
         self.button1 = Button("Select theorem", self.select_theorem, StyleName='teststyle')
@@ -48,7 +49,6 @@ class TheoremApplier(VerticalPanel):
         self.current_vars = []
         self.cnf = NormalForm([])
         self.fill_combo_theorem()
-        # self.fill_combo_variable()
 
     def fill_combo_variable(self):
         self.combo_variable.clear()
@@ -69,7 +69,6 @@ class TheoremApplier(VerticalPanel):
 
     def refresh_controls(self):
         self.fill_combo_variable()
-        # self.fill_combo_theorem()
         self.fill_image_formula()
         self.fill_image_current_cnf()
         self.button3.setEnabled(len(self.current_vars) == 0)
@@ -102,7 +101,7 @@ class TheoremApplier(VerticalPanel):
             self.refresh_controls()
 
         a = FormulaBuilder(
-            [op for op in Theorem.list_of_ops(self.theorems) if op.available and op.type == Operation.EXPRESSION], after,
+            [op for op in self.proof_state.operations if op.available and op.type == Operation.EXPRESSION], after,
             type='expr')
         a.show()
 
@@ -118,12 +117,13 @@ class TheoremApplier(VerticalPanel):
             self.refresh_controls()
 
         a = FormulaBuilder(
-            vars+[op for op in Theorem.list_of_ops(self.theorems) if op.available], after,
+            vars+[op for op in self.proof_state.operations if op.available], after,
             type='rel')
         a.show()
 
     def add_theorem(self, theorem):
-        self.theorems.append(theorem)
+        #self.theorems.append(theorem)
+        self.proof_state.add_theorem(theorem)
         self.fill_combo_theorem()
 
     def add_button_click(self):

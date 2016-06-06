@@ -8,13 +8,13 @@ from app.FormulaBuilder import FormulaBuilder
 from app.TheoremApplier import TheoremApplier
 from app.Utils import fill_flextable_with_cnf
 from lion.NormalForm import NormalForm
-from lion.Operation import Operation, operations
-from lion.Theorem import axioms, Theorem, AX_REG, AX_CHO
+from lion.Operation import Operation, base_operations
+from lion.ProofState import global_proof_state
+from lion.Theorem import Theorem
 
 
 class Root():
     def __init__(self):
-        # self.image=Image()
         self.cnf=NormalForm([])
         self.cnf_table = FlexTable(BorderWidth="1")
 
@@ -22,12 +22,11 @@ class Root():
         def after(formula):
             self.TheoremApplier.add_theorem(Theorem(formula, 'ind'))
 
-        a = FormulaBuilder([op for op in operations if op.available], after, type='rel')
+        a = FormulaBuilder([op for op in base_operations if op.available], after, type='rel')
         a.show()
 
     def onReceivingCnf(self,cnf):
         self.cnf += cnf
-        # self.image.setUrl(latex_to_url(self.cnf.to_latex()))
         self.refresh_cnf_table()
         if self.cnf.is_degenerate():
             Window.alert("SADAT ABDEL")
@@ -39,7 +38,7 @@ class Root():
 
         button0 = Button("Begin", self.jnbhu, StyleName='teststyle')
 
-        self.TheoremApplier=TheoremApplier(axioms,self.onReceivingCnf)
+        self.TheoremApplier=TheoremApplier(global_proof_state,self.onReceivingCnf)
 
         h=HorizontalPanel()
         h.setWidth("100%")
@@ -48,7 +47,5 @@ class Root():
         h.setCellWidth(self.cnf_table,"50%")
 
         RootPanel().add(button0)
-        # RootPanel().add(self.cnf_table)
 
         RootPanel().add(h)
-

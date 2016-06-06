@@ -1,6 +1,6 @@
 from lion.Formula import Formula
 from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, PHI1, PHI2, F, E, G, OR, H, \
-    operations, Operation
+    base_operations, Operation
 from lion.Operation import NOT, A
 
 
@@ -17,17 +17,18 @@ class Theorem:
                 op.name += " in " + self.name
                 op.print_scheme = op.print_scheme[:1] + "_{{" + self.name + "}} " + op.print_scheme[1:]
 
+    def is_theorem_scheme(self):
+        return len(self.cnf.get_function_schemes()) > 0
+
     @staticmethod
     def list_of_ops(theorems):
-        res = operations
+        res = base_operations
         for theorem in theorems:
             for op in theorem.cnf.list_of_ops():
                 if op not in res:
                     res.append(op)
         return res
 
-    def is_theorem_scheme(self):
-        return len(self.cnf.get_function_schemes()) > 0
 
 
 AX_EMPT = Theorem(Formula([NOT, EXISTS, A, IN, A, EMPTY]), 'ax-empt')

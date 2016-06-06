@@ -38,7 +38,7 @@ class Operation:
                 return Operation(0, chr(i), chr(i), Operation.VARIABLE)
 
     @staticmethod
-    def get_new_expression(set_of_ops, no_of_args, var=False):
+    def get_new_expression(set_of_ops, no_of_args, var=None):
         if var:
             return Operation(0, var.name.upper(), var.name.upper(), Operation.EXPRESSION,
                              is_constructed_op=True) if no_of_args == 0 else \
@@ -81,4 +81,4 @@ PHI2 = Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION, 
 
 PLACEHOLDER = Operation(0, "\Box", "placeholder", Operation.PLACEHOLDER, available=False)
 
-operations = [FORALL, EXISTS, IF, OR, AND, NOT, EQUI, IN, EMPTY, EQUALS, A, B, C, D, E, PLACEHOLDER]
+base_operations = [FORALL, EXISTS, IF, OR, AND, NOT, EQUI, IN, EMPTY, EQUALS, A, B, C, D, E, PLACEHOLDER]
