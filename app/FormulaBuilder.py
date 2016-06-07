@@ -1,9 +1,13 @@
+from lion.Operation import Operation
+from pyjamas import Window
 from pyjamas.ui.DialogWindow import DialogWindow
 from pyjamas.ui.Button import Button
 from pyjamas.ui.DockPanel import DockPanel
 from pyjamas.ui.HTML import HTML
 from pyjamas.ui.Image import Image
 from pyjamas.ui import HasAlignment
+from pyjamas.ui.Tree import Tree
+from pyjamas.ui.TreeItem import TreeItem
 
 from app.Utils import latex_to_url
 from lion.Formula import Formula
@@ -15,28 +19,29 @@ class FormulaBuilder(DialogWindow):
         self.formula = Formula([])
         self.after = after
         self.type = type
+        self.operations = operations
 
         left = 100
         top = 100
+        self.ops_to_treeitems = {op: TreeItem(op.name) for op in self.operations if op.available}
+        self.construct_tree()
 
-        self.ops_with_buttons = [{"op": op, "button": Button(op.name, self)} for op in operations if op.available]
-        dock = DockPanel()
-        dock.setSpacing(3)
+        self.dock = DockPanel()
+        self.dock.setSpacing(3)
 
-        for owb in self.ops_with_buttons:
-            dock.add(owb['button'], DockPanel.NORTH)
+        self.dock.add(self.tree, DockPanel.WEST)
 
-        dock.setWidth("300")
+        self.dock.setWidth("300")
 
         self.image = Image(latex_to_url(self.formula.fill_with_placeholders().to_latex()))
-        dock.add(self.image, DockPanel.EAST)
-        dock.setCellHorizontalAlignment(self.image, HasAlignment.ALIGN_TOP)
+        self.dock.add(self.image, DockPanel.EAST)
+        self.dock.setCellHorizontalAlignment(self.image, HasAlignment.ALIGN_TOP)
 
         self.doneButton = Button("Done", self)
         self.doneButton.setEnabled(False)
-        dock.add(self.doneButton, DockPanel.SOUTH)
+        self.dock.add(self.doneButton, DockPanel.SOUTH)
 
-        dock.add(HTML(""), DockPanel.CENTER)
+        self.dock.add(HTML(""), DockPanel.CENTER)
 
         self.setText("opkop")
         self.setPopupPosition(left, top)
@@ -45,19 +50,45 @@ class FormulaBuilder(DialogWindow):
         self.setStyleAttribute("border-width", "5px")
         self.setStyleAttribute("border-style", "solid")
 
-        self.setWidget(dock)
+        self.setWidget(self.dock)
+
+    def construct_tree(self):
+        self.tree = Tree()
+        x1 = TreeItem('Global')
+        x2 = TreeItem('Quantors')
+        x3 = TreeItem('Logical')
+        x4 = TreeItem('Relations')
+        x5 = TreeItem('Expressions')
+        x6 = TreeItem('Variables')
+        self.tree.addItem(x1)
+        x1.addItem(x2)
+        x1.addItem(x3)
+        x1.addItem(x4)
+        x1.addItem(x5)
+        x1.addItem(x6)
+
+        oaij = {Operation.QUANTOR: x2,
+                Operation.LOGICAL: x3,
+                Operation.RELATION: x4,
+                Operation.EXPRESSION: x5,
+                Operation.VARIABLE: x6}
+
+        for op in self.operations:
+            oaij[op.type].addItem(self.ops_to_treeitems[op])
+
+        self.tree.addTreeListener(self)
+
+    def onTreeItemSelected(self, item):
+        for op in self.operations:
+            if item == self.ops_to_treeitems[op]:
+                self.op_selected(op)
 
     def onClick(self, sender):
         if sender == self.doneButton:
             self.hide()
             self.after(self.formula)
 
-        op = None
-        for owb in self.ops_with_buttons:
-            if owb['button'] == sender:
-                self.setText(sender.getText())
-                op = owb['op']
-
+    def op_selected(self, op):
         if not self.formula.is_closed():
             self.formula.add_one_op(op, self.type)
             self.image.setUrl(latex_to_url(self.formula.fill_with_placeholders().to_latex()))
