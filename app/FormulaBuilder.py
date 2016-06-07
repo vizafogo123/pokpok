@@ -11,6 +11,7 @@ from pyjamas.ui.TreeItem import TreeItem
 
 from app.Utils import latex_to_url
 from lion.Formula import Formula
+from lion.ProofState import global_proof_state
 
 
 class FormulaBuilder(DialogWindow):
@@ -73,8 +74,21 @@ class FormulaBuilder(DialogWindow):
                 Operation.EXPRESSION: x5,
                 Operation.VARIABLE: x6}
 
+        y1 = TreeItem('Local')
+        y4 = TreeItem('Relations')
+        y5 = TreeItem('Expressions')
+        y6 = TreeItem('Variables')
+        self.tree.addItem(y1)
+        y1.addItem(y4)
+        y1.addItem(y5)
+        y1.addItem(y6)
+
+        rferf = {Operation.RELATION: y4,
+                Operation.EXPRESSION: y5,
+                Operation.VARIABLE: y6}
+
         for op in self.operations:
-            oaij[op.type].addItem(self.ops_to_treeitems[op])
+            (oaij if op in global_proof_state.operations else rferf)[op.type].addItem(self.ops_to_treeitems[op])
 
         self.tree.addTreeListener(self)
 

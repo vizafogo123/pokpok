@@ -16,11 +16,19 @@ from lion.Theorem import Theorem
 class Root():
     def __init__(self):
         self.cnf_table = FlexTable(BorderWidth="1")
-    def jnbhu(self):
+
+    def start_proof(self):
         def after(formula):
             self.TheoremApplier.add_theorem(Theorem(formula, 'ind'))
 
         a = FormulaBuilder([op for op in base_operations if op.available], after, type='rel')
+        a.show()
+
+    def split_proof(self):
+        def after(formula):
+            self.TheoremApplier.add_theorem(Theorem(formula, 'ind'))
+
+        a = FormulaBuilder([op for op in self.proof_state.operations if op.available], after, type='rel')
         a.show()
 
     def onReceivingCnf(self, cnf):
@@ -32,8 +40,13 @@ class Root():
     def refresh_cnf_table(self):
         fill_flextable_with_cnf(self.cnf_table, self.proof_state.cnf)
 
+    def set_to_proof_state(self,proof_state):
+        self.proof_state = proof_state
+        self.TheoremApplier = TheoremApplier(self.proof_state, self.onReceivingCnf)
+
     def start(self):
-        button0 = Button("Begin", self.jnbhu, StyleName='teststyle')
+        button0 = Button("Begin", self.start_proof, StyleName='teststyle')
+        button1 = Button("Split", self.split_proof, StyleName='teststyle')
 
         self.proof_state = ProofState(operations=global_proof_state.operations, theorems=global_proof_state.theorems,
                                       cnf=NormalForm([]))
@@ -47,5 +60,6 @@ class Root():
         h.setCellWidth(self.cnf_table, "50%")
 
         RootPanel().add(button0)
+        RootPanel().add(button1)
 
         RootPanel().add(h)
