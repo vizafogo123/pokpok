@@ -9,7 +9,7 @@ from app.TheoremApplier import TheoremApplier
 from app.Utils import fill_flextable_with_cnf
 from lion.NormalForm import NormalForm
 from lion.Operation import base_operations
-from lion.ProofState import global_proof_state, ProofState
+from lion.ProofState import global_proof_state, ProofState, ProofTreeItem
 from lion.Theorem import Theorem
 
 
@@ -19,7 +19,9 @@ class Root():
 
     def start_proof(self):
         def after(formula):
-            self.TheoremApplier.add_theorem(Theorem(formula, 'ind'))
+            self.proof_root=ProofTreeItem.proof_root(formula=formula.negate())
+            self.proof_state=self.proof_root.proof_state
+            self.TheoremApplier.set_defaults(self.proof_state)
 
         a = FormulaBuilder([op for op in base_operations if op.available], after, type='rel')
         a.show()
@@ -48,18 +50,18 @@ class Root():
         button0 = Button("Begin", self.start_proof, StyleName='teststyle')
         button1 = Button("Split", self.split_proof, StyleName='teststyle')
 
-        self.proof_state = ProofState(operations=global_proof_state.operations, theorems=global_proof_state.theorems,
+        self.proof_state = ProofState(theorems=global_proof_state.theorems, operations=global_proof_state.operations,
                                       cnf=NormalForm([]))
 
         self.TheoremApplier = TheoremApplier(self.proof_state, self.onReceivingCnf)
 
-        h = HorizontalPanel()
-        h.setWidth("100%")
-        h.add(self.cnf_table)
-        h.add(self.TheoremApplier)
-        h.setCellWidth(self.cnf_table, "50%")
+        self.h = HorizontalPanel()
+        self.h.setWidth("100%")
+        self.h.add(self.cnf_table)
+        self.h.add(self.TheoremApplier)
+        self.h.setCellWidth(self.cnf_table, "50%")
 
         RootPanel().add(button0)
         RootPanel().add(button1)
 
-        RootPanel().add(h)
+        RootPanel().add(self.h)
