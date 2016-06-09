@@ -41,20 +41,28 @@ class ProofTreeItem:
         self.proof_state = proof_state
         self.parent = parent
         self.children=[]
+        self.is_closed=False
 
     @staticmethod
     def proof_root(formula):
         return ProofTreeItem(ProofState(global_proof_state.theorems+[Theorem(formula,'indirect')],cnf=None),parent=None)
 
-    def split_item(self,literal):
+    def split(self, literal):
         child1=ProofTreeItem(self.proof_state.deepcopy(),self)
         child1.proof_state.add_literal_to_cnf(literal)
         child2=ProofTreeItem(self.proof_state.deepcopy(),self)
         child2.proof_state.add_literal_to_cnf(literal.negate())
         self.children=[child1,child2]
 
+    def close(self):
+        self.is_closed=True
+        if self.parent and len([x for x in self.parent.children if not x.is_closed])==0:
+            self.parent.close()
+
 
 if __name__ == '__main__':
     x=ProofTreeItem.proof_root(AX_EMPT.formula)
-    x.split_item(Formula([EQUALS,A,A]))
+    x.split(Formula([EQUALS, A, A]))
+    x.children[0].close()
+    x.children[1].close()
     print(98)
