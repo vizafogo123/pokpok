@@ -16,7 +16,7 @@ class Formula:
         return Formula(self.body)
 
     def list_of_ops(self):
-        res = []
+        res=[]
         for op in self.body:
             if op not in res:
                 res.append(op)
@@ -24,9 +24,6 @@ class Formula:
 
     def is_negation_of(self, other):
         return ([NOT] + self.body if self.body[0] != NOT else self.body[1:]) == other.body
-
-    def negate(self):
-        return Formula([NOT] + self.body if self.body[0] != NOT else self.body[1:])
 
     def start_of_child(self, n, k):
         i = n
@@ -42,16 +39,9 @@ class Formula:
             depth += self.body[i].no_of_args - 1
 
     def get_vars(self):
-        vars = []
+        vars=[]
         for op in self.body:
-            if op.type == Operation.VARIABLE and op not in vars:
-                vars.append(op)
-        return vars
-
-    def get_function_schemes(self):
-        vars = []
-        for op in self.body:
-            if op.is_function_scheme and op not in vars:
+            if op.type==Operation.VARIABLE and op not in vars:
                 vars.append(op)
         return vars
 
@@ -63,9 +53,9 @@ class Formula:
             n += self.body[k].no_of_args - 1
         return k
 
-    def add_one_op(self, op, type='rel'):
+    def add_one_op(self, op,type='rel'):
         if len(self.body) == 0:
-            parent = (NOT if type == 'rel' else EQUALS)
+            parent = (NOT if type=='rel' else EQUALS)
             no_of_child = 1
         else:
             k = len(self.body) - 1
@@ -171,7 +161,7 @@ class Formula:
                         vars = [self.body[n + 1]] + vars
                 op = Operation.get_new_expression(self.body, len(vars), var=self.body[k + 1])
                 self.body = self.body[:k] + Formula(self.body[k + 2:self.start_of_child(k, 3)]).substitute(
-                    Formula([self.body[k + 1]]), Formula([op] + vars)).body + self.body[self.start_of_child(k, 3):]
+                        Formula([self.body[k + 1]]), Formula([op] + vars)).body + self.body[self.start_of_child(k, 3):]
                 return True
         return False
 
@@ -251,11 +241,11 @@ class Formula:
         return res
 
 
+
 if __name__ == '__main__':
     from Theorem import AX_EXT, AX_CHO
-
-    print(Operation.get_new_variable([]).no_of_args)
-    f = Formula([A, B, C])
-    g = f.deepcopy()
-    g.body[0] = B
+    f=Formula([A,B,C])
+    g=f.deepcopy()
+    g.body[0]=B
     print(f.dump())
+
