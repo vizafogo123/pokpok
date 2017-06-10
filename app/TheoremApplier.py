@@ -1,33 +1,32 @@
 from pyjamas import Window
-from pyjamas.ui.FlexTable import FlexTable
 from pyjamas.ui.VerticalPanel import VerticalPanel
 
-from app.FormulaBuilder import FormulaBuilder
+from app.FormulaBuilder import latex_to_url, FormulaBuilder
 from pyjamas.ui.Button import Button
 from pyjamas.ui.Image import Image
 from pyjamas.ui.ListBox import ListBox
 
-from app.Utils import latex_to_url, fill_flextable_with_cnf
 from lion.Formula import Formula
 from lion.NormalForm import NormalForm
-from lion.Operation import base_operations, Operation
+from lion.Operation import operations, Operation
 from lion.Theorem import Theorem
 
 
 class TheoremApplier(VerticalPanel):
-    def __init__(self, proof_state, after):
+    def __init__(self, theorems, after):
         VerticalPanel.__init__(self)
-        self.after=after
+        self.theorems = theorems
+        self.after = after
 
         self.button1 = Button("Select theorem", self.select_theorem, StyleName='teststyle')
-        self.button2 = Button("Substitute variable", self.substitute_button_click, StyleName='teststyle')
-        self.button3 = Button("Add", self.add_button_click, StyleName='teststyle')
+        self.button2 = Button("Substitute variable", self.substitute_variable, StyleName='teststyle')
+        self.button3 = Button("Add", self.add_to_cnf, StyleName='teststyle')
 
         self.combo_theorem = ListBox(VisibleItemCount=1)
         self.combo_variable = ListBox(VisibleItemCount=1)
 
         self.image_formula = Image()
-        self.image_current_cnf = FlexTable(BorderWidth="1")
+        self.image_current_cnf = Image()
         self.image_cnf = Image()
 
         self.add(self.combo_theorem)
@@ -39,19 +38,14 @@ class TheoremApplier(VerticalPanel):
         self.add(self.button3)
         self.add(self.image_cnf)
 
-        self.set_defaults(proof_state)
+        self.set_defaults()
 
-    def set_defaults(self,proof_state):
-        self.proof_state=proof_state
-        self.theorems = proof_state.theorems
+    def set_defaults(self):
         self.current_theorem = None
         self.current_vars = []
         self.cnf = NormalForm([])
         self.fill_combo_theorem()
-        self.current_formula = None
-        self.current_cnf = None
-
-        self.refresh_controls()
+        # self.fill_combo_variable()
 
     def fill_combo_variable(self):
         self.combo_variable.clear()
@@ -63,78 +57,34 @@ class TheoremApplier(VerticalPanel):
         for theorem in self.theorems:
             self.combo_theorem.addItem(theorem.name)
 
-    def fill_image_current_cnf(self):
-        if self.current_cnf:
-            fill_flextable_with_cnf(self.image_current_cnf,self.current_cnf)
-        else:
-            self.image_current_cnf.clear()
-
-    def fill_image_formula(self):
-        if self.current_theorem:
-            self.image_formula.setUrl(latex_to_url(self.current_theorem.formula.to_latex()))
-        else:
-            self.image_formula.setUrl('')
-
-    def refresh_controls(self):
-        self.fill_combo_variable()
-        self.fill_image_formula()
-        self.fill_image_current_cnf()
-        self.button3.setEnabled(len(self.current_vars) == 0)
-        self.button2.setText(
-            "Substitute variable" if not self.current_theorem or not self.current_theorem.is_theorem_scheme() else "Substitute relation scheme")
-
     def select_theorem(self):
         self.current_theorem = self.theorems[self.combo_theorem.getSelectedIndex()]
         self.current_cnf = self.current_theorem.cnf.deepcopy()
-        self.current_formula=self.current_theorem.formula.simplify()
+        self.image_formula.setUrl(latex_to_url(self.current_theorem.formula.to_latex()))
+        self.image_current_cnf.setUrl(latex_to_url(self.current_cnf.to_latex()))
 
-        self.current_vars = (self.current_cnf.get_vars() if not self.current_theorem.is_theorem_scheme()
-                                 else self.current_cnf.get_function_schemes())
-        self.refresh_controls()
+        self.current_vars = self.current_cnf.get_vars()
+        self.fill_combo_variable()
 
+    def substitute_variable(self):
+        var = self.current_vars[self.combo_variable.getSelectedIndex()]
 
-    def substitute_button_click(self):
-        op = self.current_vars[self.combo_variable.getSelectedIndex()]
-        if op.type==Operation.VARIABLE:
-            self.substitute_variable(op)
-        else:
-            self.substitute_function_scheme(op)
-
-        self.refresh_controls()
-
-    def substitute_variable(self,var):
         def after(formula):
             self.current_cnf = self.current_cnf.substitute(Formula([var]), formula)
+            self.image_current_cnf.setUrl(latex_to_url(self.current_cnf.to_latex()))
             del self.current_vars[self.combo_variable.getSelectedIndex()]
-            self.refresh_controls()
+            self.fill_combo_variable()
+
+        # Window.alert(Theorem.set_of_ops(self.theorems))
 
         a = FormulaBuilder(
-            [op for op in self.proof_state.operations if op.available and op.type == Operation.EXPRESSION], after,
+            [op for op in Theorem.list_of_ops(self.theorems) if op.available and op.type == Operation.EXPRESSION], after,
             type='expr')
         a.show()
 
-    def substitute_function_scheme(self,fun):
-        vars=[]
-        for _ in range(fun.no_of_args):
-            vars.append(Operation.get_new_variable(vars))
-
-        def after(formula): #TODO: 1
-            self.current_formula=self.current_formula.substitute_definition(Formula([fun]+vars), formula).simplify()
-            self.current_cnf = self.current_formula.to_cnf()
-            del self.current_vars[self.combo_variable.getSelectedIndex()]
-            self.refresh_controls()
-
-        a = FormulaBuilder(
-            vars+[op for op in self.proof_state.operations if op.available], after,
-            type='rel')
-        a.show()
+    def add_to_cnf(self):
+        self.after(self.current_cnf)
 
     def add_theorem(self, theorem):
-        self.proof_state.add_theorem(theorem)
+        self.theorems.append(theorem)
         self.fill_combo_theorem()
-
-    def add_button_click(self):
-        if not self.current_theorem.is_theorem_scheme():
-            self.after(self.current_cnf)
-        else:
-            self.add_theorem(Theorem(self.current_formula,"oihjio"))
