@@ -1,12 +1,9 @@
-from pyjamas import Window
 from pyjamas.ui.CheckBox import CheckBox
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
 from pyjamas.ui.VerticalPanel import VerticalPanel
 
-from app.FormulaBuilder import latex_to_url, FormulaBuilder
-from pyjamas.ui.Button import Button
+from app.FormulaBuilder import latex_to_url
 from pyjamas.ui.Image import Image
-from pyjamas.ui.ListBox import ListBox
 
 
 class FormulaList(VerticalPanel):
