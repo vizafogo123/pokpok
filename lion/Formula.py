@@ -1,4 +1,3 @@
-from lion.NormalForm import NormalForm
 from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS, A, B, C
 
 
@@ -184,32 +183,6 @@ class Formula:
                 res.remove_duplicate_negations()
         return res
 
-    def to_cnf(self):
-        tags = []
-        k = 0
-        while self.body[k] in [FORALL, EXISTS]:
-            k = self.start_of_child(k, 2)
-
-        if self.body[k] != AND:
-            tags = [Formula(self.body[k:])]
-        else:
-            for n in range(k, len(self.body)):
-                if self.body[n] != AND and self.body[self.parent(n)] == AND:
-                    tags.append(Formula(self.body[n:self.start_of_child(n, self.body[n].no_of_args + 1)]))
-
-        res = []
-        for t in tags:
-            if t.body[0] != OR:
-                r = [t]
-            else:
-                r = []
-                for n in range(len(t.body)):
-                    if t.body[n] != OR and t.body[t.parent(n)] == OR:
-                        r.append(Formula(t.body[n:t.start_of_child(n, t.body[n].no_of_args + 1)]))
-            res.append(r)
-
-        return NormalForm(res)
-
     def substitute(self, source, dest):
         return self.substitute_parallel([source], [dest])
 
@@ -243,7 +216,6 @@ class Formula:
 
 
 if __name__ == '__main__':
-    from Theorem import AX_EXT, AX_CHO
     f=Formula([A,B,C])
     g=f.deepcopy()
     g.body[0]=B

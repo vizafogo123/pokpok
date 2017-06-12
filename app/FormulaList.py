@@ -11,7 +11,7 @@ class FormulaList(VerticalPanel):
         VerticalPanel.__init__(self)
         self.checkbox_list=[]
 
-    def add_fomula(self,f):
+    def add_formula(self, f):
         h=HorizontalPanel()
         im=Image()
         im.setUrl(latex_to_url(f.to_latex()))

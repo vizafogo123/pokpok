@@ -1,20 +1,13 @@
 from lion.Formula import Formula
 from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, PHI1, PHI2, F, E, G, OR, H, \
-    operations, Operation
+    operations
 from lion.Operation import NOT, A
 
 
 class Theorem:
     def __init__(self,formula,name):
         self.formula=formula
-        self.cnf=self.formula.simplify().to_cnf()
         self.name=name
-        self.rename_special_ops()
-
-    def rename_special_ops(self):
-        for op in self.cnf.list_of_ops():
-            if op not in operations:
-                op.name=op.name+" in "+self.name
 
     @staticmethod
     def list_of_ops(theorems):
