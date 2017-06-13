@@ -6,7 +6,7 @@ from app.FormulaBuilder import latex_to_url
 from pyjamas.ui.Image import Image
 
 
-class FormulaList(VerticalPanel):
+class FormulaListPanel(VerticalPanel):
     def __init__(self):
         VerticalPanel.__init__(self)
         self.checkbox_list=[]
