@@ -40,7 +40,7 @@ class Root():
         return pok
 
     def add_formula(self, formula, **kwargs):
-        proof.add(formula)
+        proof.add(formula,**kwargs)
         self.FormulaListPanel.reload(proof.get_formula_list())
 
     def start(self):
