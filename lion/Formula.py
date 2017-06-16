@@ -220,5 +220,4 @@ class Formula:
 if __name__ == '__main__':
     f = Formula([A, B, C])
     g = f.deepcopy()
-    g.body[0] = B
-    print(f.dump())
+    print(f==g)
