@@ -24,7 +24,7 @@ class Formula:
     def is_negation_of(self, other):
         return ([NOT] + self.body if self.body[0] != NOT else self.body[1:]) == other.body
 
-    def negate(self):
+    def negation(self):
         return (Formula([NOT] + self.body) if self.body[0] != NOT else Formula(self.body[1:]))
 
     def start_of_child(self, n, k):

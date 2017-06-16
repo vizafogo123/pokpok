@@ -26,9 +26,10 @@ class Proof:
 
     def get_formula_list(self):
         depths = [sum([x.type for x in self.body[:i + 1]]) for i in range(len(self.body))] # TODO:sajp
-        return [(pe.formula if pe.type == ProofElement.NORMAL or d <= depths[-1] else pe.second_formula)
-                for pe, d in zip(self.body, depths)
-                if pe.type <> ProofElement.CONTRA and (d <= depths[-1]+pe.type)]
+        min_depths = [min(depths[i:]) for i in range(len(self.body))]
+        return [(pe.formula if pe.type == ProofElement.NORMAL or d <= m else pe.second_formula)
+                for pe, d,m in zip(self.body, depths,min_depths)
+                if pe.type <> ProofElement.CONTRA and (d <= m+pe.type)]
 
 
 proof = Proof()
@@ -39,6 +40,8 @@ if __name__ == "__main__":
     proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123)
     proof.add(f, second_formula=Formula([C]), type=ProofElement.SPLIT, skao=123)
     proof.add(f)
-    # proof.add(Formula([]), type=ProofElement.CONTRA)
+    proof.add(Formula([]), type=ProofElement.CONTRA)
+    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123)
     proof.add(f)
+    proof.add(Formula([]), type=ProofElement.CONTRA)
     print([x.dump() for x in proof.get_formula_list()])

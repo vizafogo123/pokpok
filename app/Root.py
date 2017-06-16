@@ -33,7 +33,7 @@ class Root():
     def button_rule_click(self, rule):
         def pok():
             if not rule.is_applicable(self.selected_formulas()):
-                Window.alert(rule.name)
+                Window.alert(self.FormulaListPanel.get_selected_indices())
                 return
             rule.apply(self.selected_formulas(), self.add_formula)
 

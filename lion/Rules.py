@@ -110,21 +110,53 @@ def split_is_applicable(formulas):
         return False
     if len(formulas[0].body) == 0:
         return False
-    return formulas[0].body[0] in [IF,OR]
+    return formulas[0].body[0] in [IF, OR]
 
 
 def split_apply(formulas, after):
-    if formulas[0].body[0]==IF:
-        after(Formula(formulas[0].body[1:formulas[0].start_of_child(0, 2)]).negate(),type=ProofElement.SPLIT,
+    if formulas[0].body[0] == IF:
+        after(Formula(formulas[0].body[1:formulas[0].start_of_child(0, 2)]).negation(), type=ProofElement.SPLIT,
               second_formula=Formula(formulas[0].body[formulas[0].start_of_child(0, 2):]))
     else:
-        after(Formula(formulas[0].body[1:formulas[0].start_of_child(0, 2)]),type=ProofElement.SPLIT,
+        after(Formula(formulas[0].body[1:formulas[0].start_of_child(0, 2)]), type=ProofElement.SPLIT,
               second_formula=Formula(formulas[0].body[formulas[0].start_of_child(0, 2):]))
 
 
 split.is_applicable = split_is_applicable
 split.apply = split_apply
 
+contra = Rule("contradiction")
 
-Rules = [gen, exist, and_first, and_second,split]
 
+def contra_is_applicable(formulas):
+    if len(formulas) <> 2:
+        return False
+    return formulas[0].is_negation_of(formulas[1])
+
+
+def contra_apply(formulas, after):
+    after(Formula([]), type=ProofElement.CONTRA)
+
+
+contra.is_applicable = contra_is_applicable
+contra.apply = contra_apply
+
+assumption = Rule("assumption")
+
+
+def assumption_is_applicable(formulas):
+    return True
+
+
+def assumption_apply(formulas, after):
+    def after1(formula):
+        after(formula, type=ProofElement.SPLIT, second_formula=formula.negation())
+        #TODO:spoapok
+
+    request_formula([op for op in operations if op.available], after1, type='rel')
+
+
+assumption.is_applicable = assumption_is_applicable
+assumption.apply = assumption_apply
+
+Rules = [gen, exist, and_first, and_second, split, contra, assumption]
