@@ -6,8 +6,7 @@ from pyjamas.ui.RootPanel import RootPanel
 
 from app.FormulaBuilder import latex_to_url, FormulaBuilder
 from app.FormulaListPanel import FormulaListPanel
-from lion.Formula import Formula
-from lion.Operation import operations, A
+from lion.Operation import operations
 from lion.Proof import proof
 from lion.Rules import gen, Rules
 from lion.Theorem import AX_EXT
