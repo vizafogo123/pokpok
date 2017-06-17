@@ -22,7 +22,8 @@ class Proof:
         self.body = []
 
     def add(self, formula, **kwargs):
-        self.body.append(ProofElement(formula.deepcopy(), **kwargs))
+        f=formula.simplify()
+        self.body.append(ProofElement(f, **kwargs))
 
     def get_formula_list(self):
         depths = [sum([x.type for x in self.body[:i + 1]]) for i in range(len(self.body))] # TODO:sajp

@@ -120,10 +120,20 @@ class Formula:
 
     def move_one_negation_down(self):
         for n in range(len(self.body)):
-            if self.body[n] == NOT and self.body[n + 1] in [AND, OR]:
+            if self.body[n] == NOT and self.body[n + 1] == OR:
                 self.body.insert(self.start_of_child(n + 1, 2), NOT)
-                self.body[n] = (AND if self.body[n + 1] == OR else OR)
+                self.body[n] = AND
                 self.body[n + 1] = NOT
+                return True
+            if self.body[n] == NOT and self.body[n + 1] == AND:
+                self.body.insert(self.start_of_child(n + 1, 2), NOT)
+                del self.body[n + 1]
+                self.body[n] = IF
+                return True
+            if self.body[n] == NOT and self.body[n + 1] == IF:
+                self.body.insert(self.start_of_child(n + 1, 2), NOT)
+                del self.body[n + 1]
+                self.body[n] = AND
                 return True
             if self.body[n] == NOT and self.body[n + 1] in [FORALL, EXISTS]:
                 self.body[n] = (FORALL if self.body[n + 1] == EXISTS else EXISTS)
@@ -177,11 +187,8 @@ class Formula:
 
     def simplify(self):
         res = Formula(self.body)
-        res.substitute_equivalences()
-        res.substitute_ifs()
         res.remove_duplicate_negations()
-        for s in [res.rename_one_quantor, res.move_one_negation_down, res.remove_one_exists, res.remove_one_forall,
-                  res.move_one_and_up]:
+        for s in [res.rename_one_quantor, res.move_one_negation_down]:
             while s():
                 res.remove_duplicate_negations()
         return res
@@ -218,6 +225,6 @@ class Formula:
 
 
 if __name__ == '__main__':
-    f = Formula([A, B, C])
-    g = f.deepcopy()
-    print(f==g)
+    f = Formula([NOT, AND, A, B])
+    f.move_one_negation_down()
+    print(f.dump())

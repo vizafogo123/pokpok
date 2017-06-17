@@ -205,14 +205,17 @@ def deduction_apply(formulas, after):
 deduction.is_applicable = deduction_is_applicable
 deduction.apply = deduction_apply
 
-Rules = [gen, exist, and_first, and_second, split, contra, assumption,deduction]
-
+Rules = [gen, exist, and_first, and_second, split, contra, assumption, deduction]
 
 if __name__ == '__main__':
-    f = Formula([OR,A,B])
+    fa = Formula([OR, A, B])
     g = Formula([B])
+
+
     def pok(p):
         print(p.dump())
-    print(deduction_is_applicable([f,g]))
-    if deduction_is_applicable([f,g]):
-        deduction.apply([f,g],pok)
+
+
+    print(deduction_is_applicable([fa, g]))
+    if deduction_is_applicable([fa, g]):
+        deduction.apply([fa, g], pok)

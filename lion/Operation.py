@@ -12,7 +12,7 @@ class Operation:
         self.name = name
         self.available = available
         self.type = type
-        self.is_function_scheme=is_function_scheme
+        self.is_function_scheme = is_function_scheme
 
     def printout(self, list_of_args):
         return self.print_scheme.format(*list_of_args)
@@ -36,11 +36,11 @@ class Operation:
                 return Operation(0, chr(i), chr(i), Operation.VARIABLE)
 
     @staticmethod
-    def get_new_expression(set_of_ops, no_of_args,var=False):
+    def get_new_expression(set_of_ops, no_of_args, var=False):
         if var:
-             return Operation(0, var.name.upper(), var.name.upper(), Operation.EXPRESSION) if no_of_args == 0 else \
-                    Operation(no_of_args, var.name.upper() + " \left( " + ",".join(['{}'] * no_of_args) + "\\right)",
-                              var.name.upper(), Operation.EXPRESSION)
+            return Operation(0, var.name.upper(), var.name.upper(), Operation.EXPRESSION) if no_of_args == 0 else \
+                Operation(no_of_args, var.name.upper() + " \left( " + ",".join(['{}'] * no_of_args) + "\\right)",
+                          var.name.upper(), Operation.EXPRESSION)
 
         for i in range(1, 100):
             if "S_" + str(i) not in [op.name for op in set_of_ops]:
@@ -51,6 +51,7 @@ class Operation:
 
 FORALL = Operation(2, "\\forall {} : \, {}", "forall", Operation.QUANTOR)
 EXISTS = Operation(2, "\\exists {} : \, {}", "exists", Operation.QUANTOR)
+UNIQUE = Operation(2, "\\exists ! {} : \, {}", "unique", Operation.QUANTOR)
 
 IF = Operation(2, "\left[ {} \\rightarrow {} \\right]", "if", Operation.LOGICAL)
 EQUI = Operation(2, "\left[ {} \Leftrightarrow {} \\right]", "equivalent", Operation.LOGICAL)
@@ -73,9 +74,10 @@ F = Operation(0, "f", "f", Operation.VARIABLE)
 G = Operation(0, "g", "g", Operation.VARIABLE)
 H = Operation(0, "h", "h", Operation.VARIABLE)
 
-PHI1=Operation(1, "\phi \left( {} \\right)", "phi1", Operation.RELATION,available=False,is_function_scheme=True)
-PHI2=Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION,available=False,is_function_scheme=True)
+PHI1 = Operation(1, "\phi \left( {} \\right)", "phi1", Operation.RELATION, available=False, is_function_scheme=True)
+PHI2 = Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION, available=False,
+                 is_function_scheme=True)
 
 PLACEHOLDER = Operation(0, "\Box", "placeholder", Operation.PLACEHOLDER, available=False)
 
-operations = [FORALL, EXISTS, IF, OR, AND, NOT, EQUI, IN, EMPTY, EQUALS, A, B, C, D, E, PLACEHOLDER,POK]
+operations = [FORALL, EXISTS, UNIQUE, IF, OR, AND, NOT, EQUI, IN, EMPTY, EQUALS, A, B, C, D, E, PLACEHOLDER, POK]
