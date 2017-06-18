@@ -18,6 +18,7 @@ class FormulaListPanel(VerticalPanel):
         im = Image()
         im.setUrl(latex_to_url(f.to_latex()))
         c = CheckBox()
+        c.setStyleAttribute('background-color','#FF0000')
         h.add(c)
         h.add(im)
         self.add(h)

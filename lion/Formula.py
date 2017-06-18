@@ -1,4 +1,4 @@
-from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS, A, B, C
+from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS, A, B, C, UNIQUE
 
 
 class Formula:
@@ -88,11 +88,20 @@ class Formula:
     def is_closed(self):
         return sum([x.no_of_args - 1 for x in self.body]) == -1
 
-    def substitute_equivalence(self,n):
+    def substitute_equivalence(self, n):
         if self.body[n] == EQUI:
             self.body = self.body[:n] + [AND, IF] + self.body[n + 1:self.start_of_child(n, 3)] \
                         + [IF] + self.body[self.start_of_child(n, 2):self.start_of_child(n, 3)] \
                         + self.body[n + 1:self.start_of_child(n, 2)] + self.body[self.start_of_child(n, 3):]
+
+    def substitute_unique(self, n):
+        new_var = Operation.get_new_variable([op for op in self.body if op.type == Operation.VARIABLE])
+        if self.body[n] == UNIQUE:
+            self.body = self.body[:n] + [EXISTS, self.body[n + 1], AND] + self.body[n + 2:self.start_of_child(n, 3)] + \
+                        [FORALL, new_var, IF] + Formula(self.body[n + 2:self.start_of_child(n, 3)]).substitute(
+                Formula([self.body[n + 1]]),
+                Formula([new_var])).body \
+                        + [EQUALS,new_var,self.body[n+1]] + self.body[self.start_of_child(n, 3):]
 
     def substitute_ifs(self):
         self.body = self.substitute(Formula([IF]), Formula([OR, NOT])).body
@@ -183,12 +192,14 @@ class Formula:
         return False
 
     def simplify(self):
-        if len(self.body)==0:
+        if len(self.body) == 0:
             return self
         res = Formula(self.body)
         res.remove_duplicate_negations()
-        if res.body[0]== NOT and res.body[1]==EQUI:
+        if res.body[0] == NOT and res.body[1] == EQUI:
             res.substitute_equivalence(1)
+        if res.body[0]==UNIQUE or (res.body[0]==NOT and res.body[1]==UNIQUE):
+            res.substitute_unique(0 if res.body[0]==UNIQUE else 1)
         for s in [res.rename_one_quantor, res.move_one_negation_down]:
             while s():
                 res.remove_duplicate_negations()
@@ -226,6 +237,6 @@ class Formula:
 
 
 if __name__ == '__main__':
-    f = Formula([NOT, EQUI, A, B])
-    f=f.simplify()
+    f = Formula([UNIQUE, A, EQUALS, A, C])
+    f.substitute_unique(0)
     print(f.dump())
