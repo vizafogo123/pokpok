@@ -1,30 +1,26 @@
 from pyjamas import Window
+from pyjamas.ui import HasAlignment
 from pyjamas.ui.Button import Button
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
-from pyjamas.ui.Image import Image
 from pyjamas.ui.RootPanel import RootPanel
 
-from app.FormulaBuilder import latex_to_url, FormulaBuilder
+from app.FormulaBuilder import FormulaBuilder
 from app.FormulaListPanel import FormulaListPanel
+from app.TheoremPanel import TheoremPanel
 from lion.Operation import operations
 from lion.Proof import proof
-from lion.Rules import gen, Rules
-from lion.Theorem import AX_EXT
+from lion.Rules import Rules
 
 
 class Root():
     def __init__(self):
         pass
 
-    def button0_click(self):
+    def button_test_click(self):
         def after(formula):
-            self.fo = formula
-            self.image.setUrl(latex_to_url(self.fo.to_latex()))
+            self.add_formula(formula)
 
         FormulaBuilder([op for op in operations if op.available], after, type='rel').show()
-
-    def button1_click(self):
-        self.add_formula(self.fo)
 
     def selected_formulas(self):
         return [x for i, x in enumerate(proof.get_formula_list()) if i in self.FormulaListPanel.get_selected_indices()]
@@ -42,30 +38,52 @@ class Root():
         proof.add(formula,**kwargs)
         self.FormulaListPanel.reload(proof.get_formula_list())
 
-    def start(self):
+    def sakop(self,poj):
+        Window.alert(poj.formula.dump())
 
-        button0 = Button("Begin", self.button0_click, StyleName='teststyle')
-        button1 = Button("Topsa", self.button1_click, StyleName='teststyle')
+    def start(self):
+        button_test = Button("dojdojdoj", self.button_test_click)
 
         for r in Rules:
             RootPanel().add(Button(r.name, self.button_rule_click(r), StyleName='teststyle'))
+        RootPanel().add(button_test)
 
-        self.image = Image()
         self.FormulaListPanel = FormulaListPanel()
-        self.fo = AX_EXT.formula
+        self.TheoremPanel = TheoremPanel(self.add_formula)
 
-        h = HorizontalPanel()
-        h.setWidth("100%")
-        h.add(self.image)
+        h = HorizontalPanel(BorderWidth=1,
+                                HorizontalAlignment=HasAlignment.ALIGN_LEFT,
+                                VerticalAlignment=HasAlignment.ALIGN_TOP,
+                                Width="100%",
+                                Height="200px")
+        h.setStyleAttribute("background", "yellow")
         h.add(self.FormulaListPanel)
-        h.setCellWidth(self.image, "50%")
-
-        self.image.setUrl(latex_to_url(self.fo.to_latex()))
-
-        RootPanel().add(button0)
-        RootPanel().add(button1)
-        # RootPanel().add(button2)
-        RootPanel().add(self.image)
-        # RootPanel().add(outer)
-
+        h.add(self.TheoremPanel)
+        h.setCellWidth(self.FormulaListPanel,"50%")
+        h.setCellWidth(self.TheoremPanel,"50%")
         RootPanel().add(h)
+
+        # panel = HorizontalPanel(BorderWidth=1,
+        #                         HorizontalAlignment=HasAlignment.ALIGN_CENTER,
+        #                         VerticalAlignment=HasAlignment.ALIGN_MIDDLE,
+        #                         Width="100%",
+        #                         Height="200px")
+        #
+        # part1 = Label("Part 1")
+        # part2 = Label("Part 2")
+        # part3 = Label("Part 3")
+        # part4 = Label("Part 4")
+        #
+        # panel.add(part1)
+        # panel.add(part2)
+        # panel.add(part3)
+        # panel.add(part4)
+        #
+        # panel.setCellWidth(part1, "10%")
+        # panel.setCellWidth(part2, "70%")
+        # panel.setCellWidth(part3, "10%")
+        # panel.setCellWidth(part4, "10%")
+        #
+        # panel.setCellVerticalAlignment(part3, HasAlignment.ALIGN_BOTTOM)
+        #
+        # RootPanel().add(panel)
