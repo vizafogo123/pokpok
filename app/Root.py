@@ -38,15 +38,27 @@ class Root():
         proof.add(formula,**kwargs)
         self.FormulaListPanel.reload(proof.get_formula_list())
 
+    def hide_formulas(self):
+        proof.hide_formulas(self.FormulaListPanel.get_selected_indices())
+        self.FormulaListPanel.reload(proof.get_formula_list())
+
+    def unhide_all(self):
+        proof.unhide_all()
+        self.FormulaListPanel.reload(proof.get_formula_list())
+
     def sakop(self,poj):
         Window.alert(poj.formula.dump())
 
     def start(self):
         button_test = Button("dojdojdoj", self.button_test_click)
+        button_hide = Button("hide", self.hide_formulas)
+        button_unhide = Button("unhide all", self.unhide_all)
 
         for r in Rules:
             RootPanel().add(Button(r.name, self.button_rule_click(r), StyleName='teststyle'))
         RootPanel().add(button_test)
+        RootPanel().add(button_hide)
+        RootPanel().add(button_unhide)
 
         self.FormulaListPanel = FormulaListPanel()
         self.TheoremPanel = TheoremPanel(self.add_formula)
