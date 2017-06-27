@@ -21,44 +21,51 @@ class ProofElement:
         else:
             self.hidden = False
 
+        self.predecessors=kwargs["predecessors"]
+        self.rule_name=kwargs["rule_name"]
+
 
 class Proof:
     def __init__(self):
         self.body = []
 
     def add(self, formula, **kwargs):
+        # Window.alert([self.list_index_to_proof_index(n) for n in kwargs["predecessors"]])
         f = formula.simplify()
-        self.body.append(ProofElement(f, **kwargs))
+        kwargs["predecessors"]=[self.list_index_to_proof_index(n) for n in kwargs["predecessors"]]
+        self.body.append(
+            ProofElement(f, **kwargs))
 
     def active_list(self):
         depths = [sum([x.type for x in self.body[:i + 1]]) for i in range(len(self.body))]  # TODO:sajp
         min_depths = [min(depths[i:]) for i in range(len(self.body))]
-        return [(0 if not((not pe.hidden) and pe.type <> ProofElement.CONTRA and (d <= m + pe.type)) else
-        (1 if pe.type == ProofElement.NORMAL or d <= m else 2))
+        return [(0 if not ((not pe.hidden) and pe.type <> ProofElement.CONTRA and (d <= m + pe.type)) else
+                 (1 if pe.type == ProofElement.NORMAL or d <= m else 2))
                 for pe, d, m in zip(self.body, depths, min_depths)]
 
     def get_formula_list(self):
-        return [(pe.formula if a==1 else pe.second_formula) for pe,a in zip(self.body,self.active_list()) if a<>0]
+        return [(pe.formula if a == 1 else pe.second_formula) for pe, a in zip(self.body, self.active_list()) if a <> 0]
 
-    def list_index_to_proof_index(self,n):
-        k=0
-        a=self.active_list()
+    def list_index_to_proof_index(self, n):
+        k = 0
+        a = self.active_list()
         for i in range(len(self.body)):
-            if a[i]<>0:
-                if k==n:
+            if a[i] <> 0:
+                if k == n:
                     return i
                 else:
-                    k+=1
+                    k += 1
         return ""
 
-    def hide_formulas(self,index_list):
-        l=[proof.list_index_to_proof_index(i) for i in index_list]
+    def hide_formulas(self, index_list):
+        l = [proof.list_index_to_proof_index(i) for i in index_list]
         for i in l:
-            proof.body[i].hidden=True
+            proof.body[i].hidden = True
 
     def unhide_all(self):
         for pe in proof.body:
-            pe.hidden=False
+            pe.hidden = False
+
 
 proof = Proof()
 

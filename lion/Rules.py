@@ -39,7 +39,7 @@ def gen_apply(formulas, after):
     def after1(formula):
         f = formulas[0]
         f = Formula(f.body[2:]).substitute(Formula([f.body[1]]), formula)
-        after(f)
+        after(f,rule_name=gen.name)
 
     request_formula([op for op in operations if op.available and op.type == Operation.EXPRESSION], after1, type='exp')
 
@@ -59,7 +59,7 @@ def exist_apply(formulas, after):
     operations.append(const)
     f = formulas[0]
     f = Formula(f.body[2:]).substitute(Formula([f.body[1]]), Formula([const]))
-    after(f)
+    after(f,rule_name=exist.name)
 
 
 exist.is_applicable = exist_is_applicable
@@ -73,7 +73,7 @@ def and_first_is_applicable(formulas):
 
 
 def and_first_apply(formulas, after):
-    after(Formula(formulas[0].body[1:formulas[0].start_of_child(0, 2)]))
+    after(Formula(formulas[0].body[1:formulas[0].start_of_child(0, 2)]),rule_name=and_first.name)
 
 
 and_first.is_applicable = and_first_is_applicable
@@ -87,7 +87,7 @@ def and_second_is_applicable(formulas):
 
 
 def and_second_apply(formulas, after):
-    after(Formula(formulas[0].body[formulas[0].start_of_child(0, 2):]))
+    after(Formula(formulas[0].body[formulas[0].start_of_child(0, 2):]),rule_name=and_second.name)
 
 
 and_second.is_applicable = and_second_is_applicable
@@ -103,10 +103,10 @@ def split_is_applicable(formulas):
 def split_apply(formulas, after):
     if formulas[0].body[0] == IF:
         after(Formula(formulas[0].body[1:formulas[0].start_of_child(0, 2)]).negation(), type=ProofElement.SPLIT,
-              second_formula=Formula(formulas[0].body[formulas[0].start_of_child(0, 2):]))
+              second_formula=Formula(formulas[0].body[formulas[0].start_of_child(0, 2):]),rule_name=split.name)
     else:
         after(Formula(formulas[0].body[1:formulas[0].start_of_child(0, 2)]), type=ProofElement.SPLIT,
-              second_formula=Formula(formulas[0].body[formulas[0].start_of_child(0, 2):]))
+              second_formula=Formula(formulas[0].body[formulas[0].start_of_child(0, 2):]),rule_name=split.name)
 
 
 split.is_applicable = split_is_applicable
@@ -120,7 +120,7 @@ def contra_is_applicable(formulas):
 
 
 def contra_apply(formulas, after):
-    after(Formula([]), type=ProofElement.CONTRA)
+    after(Formula([]), type=ProofElement.CONTRA,rule_name=contra.name)
 
 
 contra.is_applicable = contra_is_applicable
@@ -135,7 +135,7 @@ def assumption_is_applicable(formulas):
 
 def assumption_apply(formulas, after):
     def after1(formula):
-        after(formula, type=ProofElement.SPLIT, second_formula=formula.negation())
+        after(formula, type=ProofElement.SPLIT, second_formula=formula.negation(),predecessors=[],rule_name=assumption.name)
         # TODO:spoapok
 
     request_formula([op for op in operations if op.available], after1, type='rel')
@@ -199,7 +199,7 @@ def deduction_apply(formulas, after):
             f = Formula(b.body[k:])
         if a.is_negation_of(Formula(b.body[k:])):
             f = Formula(b.body[1:k]).negation()
-    after(f)
+    after(f,rule_name=deduction.name)
 
 
 deduction.is_applicable = deduction_is_applicable

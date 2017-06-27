@@ -18,7 +18,7 @@ class Root():
 
     def button_test_click(self):
         def after(formula):
-            self.add_formula(formula)
+            self.add_formula(formula,predecessors=[],rule_name="dojdojdoj")
 
         FormulaBuilder([op for op in operations if op.available], after, type='rel').show()
 
@@ -28,14 +28,16 @@ class Root():
     def button_rule_click(self, rule):
         def pok():
             if not rule.is_applicable(self.selected_formulas()):
-                Window.alert(self.FormulaListPanel.get_selected_indices())
+                Window.alert("opkop")
                 return
             rule.apply(self.selected_formulas(), self.add_formula)
 
         return pok
 
     def add_formula(self, formula, **kwargs):
-        proof.add(formula,**kwargs)
+        if not "predecessors" in kwargs:
+            kwargs["predecessors"] = self.FormulaListPanel.get_selected_indices()
+        proof.add(formula, **kwargs)
         self.FormulaListPanel.reload(proof.get_formula_list())
 
     def hide_formulas(self):
@@ -43,10 +45,11 @@ class Root():
         self.FormulaListPanel.reload(proof.get_formula_list())
 
     def unhide_all(self):
+        Window.alert([p.rule_name for p in proof.body])
         proof.unhide_all()
         self.FormulaListPanel.reload(proof.get_formula_list())
 
-    def sakop(self,poj):
+    def sakop(self, poj):
         Window.alert(poj.formula.dump())
 
     def start(self):
@@ -64,15 +67,15 @@ class Root():
         self.TheoremPanel = TheoremPanel(self.add_formula)
 
         h = HorizontalPanel(BorderWidth=1,
-                                HorizontalAlignment=HasAlignment.ALIGN_LEFT,
-                                VerticalAlignment=HasAlignment.ALIGN_TOP,
-                                Width="100%",
-                                Height="200px")
+                            HorizontalAlignment=HasAlignment.ALIGN_LEFT,
+                            VerticalAlignment=HasAlignment.ALIGN_TOP,
+                            Width="100%",
+                            Height="200px")
         h.setStyleAttribute("background", "yellow")
         h.add(self.FormulaListPanel)
         h.add(self.TheoremPanel)
-        h.setCellWidth(self.FormulaListPanel,"50%")
-        h.setCellWidth(self.TheoremPanel,"50%")
+        h.setCellWidth(self.FormulaListPanel, "50%")
+        h.setCellWidth(self.TheoremPanel, "50%")
         RootPanel().add(h)
 
         # panel = HorizontalPanel(BorderWidth=1,

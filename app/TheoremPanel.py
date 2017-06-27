@@ -21,7 +21,7 @@ class TheoremPanel(ScrollPanel):
 
         def onClick(x):
             def poas(sender):
-                self.after(x)
+                self.after(x,predecessors=[],rule_name="insert")
             return poas
 
         for ax in axioms:
