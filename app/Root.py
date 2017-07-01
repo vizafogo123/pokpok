@@ -7,6 +7,7 @@ from pyjamas.ui.RootPanel import RootPanel
 from app.FormulaBuilder import FormulaBuilder
 from app.FormulaListPanel import FormulaListPanel
 from app.TheoremPanel import TheoremPanel
+from app.io import get_request
 from lion.Operation import operations
 from lion.Proof import proof
 from lion.Rules import Rules
@@ -18,7 +19,7 @@ class Root():
 
     def button_test_click(self):
         def after(formula):
-            self.add_formula(formula,predecessors=[],rule_name="dojdojdoj")
+            self.add_formula(formula, predecessors=[], rule_name="dojdojdoj")
 
         FormulaBuilder([op for op in operations if op.available], after, type='rel').show()
 
@@ -50,7 +51,7 @@ class Root():
         self.FormulaListPanel.reload(proof.get_formula_list())
 
     def sakop(self, poj):
-        Window.alert(poj.formula.dump())
+        Window.alert(poj)
 
     def start(self):
         button_test = Button("dojdojdoj", self.button_test_click)
@@ -77,28 +78,4 @@ class Root():
         h.setCellWidth(self.FormulaListPanel, "50%")
         h.setCellWidth(self.TheoremPanel, "50%")
         RootPanel().add(h)
-
-        # panel = HorizontalPanel(BorderWidth=1,
-        #                         HorizontalAlignment=HasAlignment.ALIGN_CENTER,
-        #                         VerticalAlignment=HasAlignment.ALIGN_MIDDLE,
-        #                         Width="100%",
-        #                         Height="200px")
-        #
-        # part1 = Label("Part 1")
-        # part2 = Label("Part 2")
-        # part3 = Label("Part 3")
-        # part4 = Label("Part 4")
-        #
-        # panel.add(part1)
-        # panel.add(part2)
-        # panel.add(part3)
-        # panel.add(part4)
-        #
-        # panel.setCellWidth(part1, "10%")
-        # panel.setCellWidth(part2, "70%")
-        # panel.setCellWidth(part3, "10%")
-        # panel.setCellWidth(part4, "10%")
-        #
-        # panel.setCellVerticalAlignment(part3, HasAlignment.ALIGN_BOTTOM)
-        #
-        # RootPanel().add(panel)
+        get_request()

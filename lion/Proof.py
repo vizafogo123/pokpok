@@ -23,7 +23,8 @@ class ProofElement:
 
         self.predecessors=kwargs["predecessors"]
         self.rule_name=kwargs["rule_name"]
-
+        if "additional_info" in kwargs:
+            self.additional_info=kwargs["additional_info"]
 
 class Proof:
     def __init__(self):
