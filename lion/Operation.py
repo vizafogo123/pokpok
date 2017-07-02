@@ -12,10 +12,20 @@ class Operation:
         self.name = name
         self.available = available
         self.type = type
-        self.is_function_scheme = is_function_scheme
 
     def printout(self, list_of_args):
         return self.print_scheme.format(*list_of_args)
+
+
+    def to_json(self):
+        return {
+            "id":0,
+            "name":self.name,
+            "valence":self.no_of_args,
+            "type":self.type,
+            "print_scheme":self.print_scheme,
+        }
+
 
     @staticmethod
     def can_follow(parent, child, no_of_child):
@@ -74,10 +84,9 @@ F = Operation(0, "f", "f", Operation.VARIABLE)
 G = Operation(0, "g", "g", Operation.VARIABLE)
 H = Operation(0, "h", "h", Operation.VARIABLE)
 
-PHI1 = Operation(1, "\phi \left( {} \\right)", "phi1", Operation.RELATION, available=False, is_function_scheme=True)
-PHI2 = Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION, available=False,
-                 is_function_scheme=True)
+PHI1 = Operation(1, "\phi \left( {} \\right)", "phi1", Operation.RELATION, available=False)
+PHI2 = Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION, available=False)
 
 PLACEHOLDER = Operation(0, "\Box", "placeholder", Operation.PLACEHOLDER, available=False)
 
-operations = [FORALL, EXISTS, UNIQUE, IF, OR, AND, NOT, EQUI, IN, EMPTY, EQUALS, A, B, C, D, E, PLACEHOLDER, POK]
+operations = [FORALL, EXISTS, UNIQUE, IF, OR, AND, NOT, EQUI, IN, EMPTY, EQUALS, PLACEHOLDER, POK]

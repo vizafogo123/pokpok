@@ -7,7 +7,7 @@ from pyjamas.ui.RootPanel import RootPanel
 from app.FormulaBuilder import FormulaBuilder
 from app.FormulaListPanel import FormulaListPanel
 from app.TheoremPanel import TheoremPanel
-from app.io import get_request
+from app.io import get_request, put_request
 from lion.Operation import operations
 from lion.Proof import proof
 from lion.Rules import Rules
@@ -78,4 +78,4 @@ class Root():
         h.setCellWidth(self.FormulaListPanel, "50%")
         h.setCellWidth(self.TheoremPanel, "50%")
         RootPanel().add(h)
-        get_request()
+        # put_request([o.to_json() for o in operations])

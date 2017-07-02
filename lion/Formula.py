@@ -1,4 +1,4 @@
-from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS, A, B, C, UNIQUE
+from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS, A, B, C, UNIQUE, POK
 
 
 class Formula:
@@ -60,15 +60,34 @@ class Formula:
             parent = (NOT if type == 'rel' else EQUALS)
             no_of_child = 1
         else:
-            k = len(self.body) - 1
-            n = self.body[-1].no_of_args - 1
-            while n < 0:
-                k -= 1
-                n += self.body[k].no_of_args - 1
-            parent = self.body[k]
-            no_of_child = parent.no_of_args - n
+            parent,no_of_child=self.parent_and_no_of_child(len(self.body))
+            parent=self.body[parent]
         if Operation.can_follow(parent, op, no_of_child):
+            if op.type==Operation.VARIABLE:
+                if parent.type==Operation.QUANTOR and no_of_child==1:
+                    for i in range(len(self.body)):
+                        if self.body[i]==op:
+                            return
+                else:
+                    p,x=self.parent_and_no_of_child(len(self.body))
+                    while p>=0:
+                        if self.body[p].type==Operation.QUANTOR and self.body[p+1]==op:
+                            self.body += [op]
+                            return
+                        p, x = self.parent_and_no_of_child(p)
+                    if p<0:
+                        return
             self.body += [op]
+
+    def parent_and_no_of_child(self,k):
+        if k==0:
+            return -1,1
+        k-=1
+        n = self.body[k].no_of_args - 1
+        while n < 0:
+            k -= 1
+            n += self.body[k].no_of_args - 1
+        return k,self.body[k].no_of_args - n
 
     def to_latex(self):
         p = [''] * len(self.body)
@@ -237,6 +256,5 @@ class Formula:
 
 
 if __name__ == '__main__':
-    f = Formula([UNIQUE, A, EQUALS, A, C])
-    f.substitute_unique(0)
-    print(f.dump())
+    f = Formula([FORALL,A])
+    print(f.parent_and_no_of_child(0))
