@@ -4,8 +4,11 @@ from lion.Operation import FORALL, operations, Operation, EXISTS, AND, IF, OR, E
 from lion.Proof import ProofElement
 
 
-def request_formula(operations, after, type):
-    FormulaBuilder(operations, after, type).show()
+def request_formula(operations, after, type='rel',no_of_args=5):
+    if type=='exp':
+        FormulaBuilder([o for o in operations if o.type==Operation.EXPRESSION], after, type, no_of_args).show()
+    else:
+        FormulaBuilder(operations, after, type,no_of_args).show()
 
 
 class Rule:

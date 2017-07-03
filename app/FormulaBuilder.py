@@ -12,6 +12,7 @@ import urllib
 from pyjamas.ui.TextBox import TextBox
 
 from lion.Formula import Formula
+from lion.Operation import Operation
 
 
 def latex_to_url(latex):
@@ -19,7 +20,7 @@ def latex_to_url(latex):
 
 
 class FormulaBuilder(DialogWindow):
-    def __init__(self, operations, after, type='rel'):
+    def __init__(self, operations, after, type='rel',no_of_vars=5):
         DialogWindow.__init__(self, modal=True, close=True)
         self.formula = Formula([])
         self.after = after
@@ -37,14 +38,39 @@ class FormulaBuilder(DialogWindow):
         for owb in self.ops_with_buttons:
             self.add_button(owb["button"])
 
-        self.set_variables(1)
+        self.var=list()
+        self.is_clicked=list()
+        self.textbox=list()
+
+        self.set_variables(no_of_vars)
+
 
     def set_variables(self,no_of_vars,x=True):
+        def name(n):
+            return "var"+str(n)
+
+        def print_scheme(n):
+            return ["\\alpha","\\beta","\\gamma","\\delta","\\epsilon"][n]
+
+        def button_click(n):
+            def sopa():
+                if not self.is_clicked[n]:
+                    v=Operation(0,self.textbox[n].getText(),name(n),Operation.VARIABLE)
+                    self.var[n]=v
+                    self.textbox[n].setEnabled(False)
+                    self.is_clicked[n]=True
+                self.add_op(self.var[n])
+            return sopa
+
         for i in range(no_of_vars):
             h = HorizontalPanel()
-            h.add(Button("variable"))
+            b=Button("variable",button_click(i))
+            h.add(b)
+            self.is_clicked.append(False)
+            self.var.append(None)
             t=TextBox()
-            t.setText("aoka")
+            self.textbox.append(t)
+            t.setText(print_scheme(i))
             h.add(t)
             self.add_button(h)
 
@@ -85,8 +111,6 @@ class FormulaBuilder(DialogWindow):
             self.image.setUrl(latex_to_url(self.formula.fill_with_placeholders().to_latex()))
             if self.formula.is_closed():
                 self.doneButton.setEnabled(True)
-
-
 
     def onClick(self, sender):
         if sender == self.doneButton:

@@ -1,6 +1,6 @@
 from lion.Formula import Formula
-from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, PHI1, PHI2, F, E, G, OR, H, \
-    operations
+from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, F, E, G, OR, H, \
+    operations, UNIQUE, Operation
 from lion.Operation import NOT, A
 
 
@@ -20,6 +20,10 @@ class Theorem:
         return res
 
 
+PHI1 = Operation(1, "\phi \left( {} \\right)", "phi1", Operation.RELATION, available=False)
+PHI2 = Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION, available=False)
+PHI3 = Operation(2, "\kappa \left( {} , {} \\right)", "kappa", Operation.EXPRESSION, available=False)
+
 AX_EMPT = Theorem(Formula([NOT, EXISTS, A, IN, A, EMPTY]), 'ax_empt')
 AX_EXT = Theorem(Formula([FORALL, A, FORALL, B, IF, FORALL, C, EQUI, IN, C, A, IN, C, B, EQUALS, A, B]), 'ax_ext')
 AX_REG = Theorem(Formula(
@@ -36,10 +40,11 @@ AX_INF = Theorem(Formula(
      EQUALS, D, B, IN, D, B]), 'ax_inf')
 AX_CHO = Theorem(Formula(
     [FORALL, A, IF, AND, NOT, IN, EMPTY, A, FORALL, B, IF, IN, B, A, FORALL, C, IF, IN, C, A, NOT, EXISTS, D, AND,
-     IN, D, B, IN, D, C, EXISTS, E, FORALL, F, IF, IN, F, A, EXISTS, G, AND, AND, IN, G, E, IN, G, F, FORALL, H, IF,
-     AND, IN, H, E, IN, H, F, EQUALS, H, G]), 'ax_cho')
+     IN, D, B, IN, D, C, EXISTS, E, FORALL, F, IF, IN, F, A, UNIQUE, G, AND, IN, G, E, IN, G, F]), 'ax_cho')
 
-axioms = [AX_EMPT, AX_EXT, AX_REG, AX_UNI, AX_SPEC, AX_REP, AX_INF, AX_CHO]
+AX_DAJDAJ = Theorem(Formula([FORALL, A, FORALL, B, EQUALS, PHI3, A, B, PHI3, B, A]), 'ax_dajdaj', [PHI3])
+
+axioms = [AX_EMPT, AX_EXT, AX_REG, AX_UNI, AX_SPEC, AX_REP, AX_INF, AX_CHO, AX_DAJDAJ]
 
 if __name__ == '__main__':
     print(len(Theorem.list_of_ops(axioms)))
