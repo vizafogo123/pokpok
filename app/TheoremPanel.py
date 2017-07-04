@@ -1,9 +1,6 @@
 from pyjamas import Window
 
-from pyjamas.ui.CheckBox import CheckBox
-from pyjamas.ui.HorizontalPanel import HorizontalPanel
 from pyjamas.ui.ScrollPanel import ScrollPanel
-from pyjamas.ui.SimplePanel import SimplePanel
 from pyjamas.ui.VerticalPanel import VerticalPanel
 
 from app.FormulaBuilder import latex_to_url
@@ -32,7 +29,7 @@ class TheoremPanel(ScrollPanel):
 
             def poas(sender):
                 if len(theorem.vars) == 1:
-                    constants = [Operation(0, print_scheme(i), name(i), Operation.EXPRESSION)
+                    constants = [Operation(name(i),0, print_scheme(i), name(i), Operation.EXPRESSION)
                                  for i in range(theorem.vars[0].no_of_args)]
 
                     def after1(f):

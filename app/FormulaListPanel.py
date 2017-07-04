@@ -1,17 +1,21 @@
 from pyjamas.ui.CheckBox import CheckBox
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
+from pyjamas.ui.ScrollPanel import ScrollPanel
 from pyjamas.ui.VerticalPanel import VerticalPanel
 
 from app.FormulaBuilder import latex_to_url
 from pyjamas.ui.Image import Image
 
 
-class FormulaListPanel(VerticalPanel):
+class FormulaListPanel(ScrollPanel):
     def __init__(self):
-        VerticalPanel.__init__(self)
+        ScrollPanel.__init__(self, Size=("630px", "500px"))
         self.checkbox_list = []
         self.hpanel_list = []
         self.image_list = []
+
+        self.pok = VerticalPanel()
+        self.add(self.pok)
 
     def add_formula(self, f):
         h = HorizontalPanel()
@@ -21,7 +25,7 @@ class FormulaListPanel(VerticalPanel):
         c.setStyleAttribute('background-color','#FF0000')
         h.add(c)
         h.add(im)
-        self.add(h)
+        self.pok.add(h)
         self.checkbox_list.append(c)
         self.hpanel_list.append(h)
         self.image_list.append(im)

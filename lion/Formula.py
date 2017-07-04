@@ -187,21 +187,6 @@ class Formula:
                 return True
         return False
 
-    def remove_one_exists(self):
-        for k in range(len(self.body)):
-            if self.body[k] == EXISTS:
-                vars = []
-                n = k
-                while n > 0:
-                    n = self.parent(n)
-                    if self.body[n] == FORALL:
-                        vars = [self.body[n + 1]] + vars
-                op = Operation.get_new_expression(self.body, len(vars), var=self.body[k + 1])
-                self.body = self.body[:k] + Formula(self.body[k + 2:self.start_of_child(k, 3)]).substitute(
-                    Formula([self.body[k + 1]]), Formula([op] + vars)).body + self.body[self.start_of_child(k, 3):]
-                return True
-        return False
-
     def remove_one_forall(self):
         for k in range(len(self.body)):
             if self.body[k] == FORALL:
@@ -254,6 +239,8 @@ class Formula:
             k -= 1
         return res
 
+    def to_json(self):
+        return [op.id for op in self.body]
 
 if __name__ == '__main__':
     f = Formula([FORALL,A])

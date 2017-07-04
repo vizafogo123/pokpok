@@ -11,6 +11,7 @@ from app.io import get_request, put_request
 from lion.Operation import operations
 from lion.Proof import proof
 from lion.Rules import Rules
+from lion.Theorem import axioms
 
 
 class Root():
@@ -78,4 +79,4 @@ class Root():
         h.setCellWidth(self.FormulaListPanel, "50%")
         h.setCellWidth(self.TheoremPanel, "50%")
         RootPanel().add(h)
-        # put_request([o.to_json() for o in operations])
+        put_request({"operations":[o.to_json() for o in operations],"theorems":[ax.to_json() for ax in axioms]})

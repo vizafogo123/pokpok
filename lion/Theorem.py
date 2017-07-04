@@ -10,6 +10,9 @@ class Theorem:
         self.name = name
         self.vars = vars
 
+    def to_json(self):
+        return {"name":self.name,"formula":self.formula.to_json(),"operations":[op.to_json() for op in self.vars]}
+
     @staticmethod
     def list_of_ops(theorems):
         res = []
@@ -20,9 +23,9 @@ class Theorem:
         return res
 
 
-PHI1 = Operation(1, "\phi \left( {} \\right)", "phi1", Operation.RELATION, available=False)
-PHI2 = Operation(2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION, available=False)
-PHI3 = Operation(2, "\kappa \left( {} , {} \\right)", "kappa", Operation.EXPRESSION, available=False)
+PHI1 = Operation("op1",1, "\phi \left( {} \\right)", "phi1", Operation.RELATION, available=False)
+PHI2 = Operation("op1",2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION, available=False)
+PHI3 = Operation("op1",2, "\kappa \left( {} , {} \\right)", "kappa", Operation.EXPRESSION, available=False)
 
 AX_EMPT = Theorem(Formula([NOT, EXISTS, A, IN, A, EMPTY]), 'ax_empt')
 AX_EXT = Theorem(Formula([FORALL, A, FORALL, B, IF, FORALL, C, EQUI, IN, C, A, IN, C, B, EQUALS, A, B]), 'ax_ext')

@@ -55,7 +55,7 @@ class FormulaBuilder(DialogWindow):
         def button_click(n):
             def sopa():
                 if not self.is_clicked[n]:
-                    v=Operation(0,self.textbox[n].getText(),name(n),Operation.VARIABLE)
+                    v=Operation(name(n),0,self.textbox[n].getText(),name(n),Operation.VARIABLE)
                     self.var[n]=v
                     self.textbox[n].setEnabled(False)
                     self.is_clicked[n]=True
