@@ -1,6 +1,5 @@
 from lion.Formula import Formula
-from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, F, E, G, OR, H, \
-    operations, UNIQUE, Operation
+from lion.Operation import EXISTS, IN, EMPTY, FORALL, B, IF, C, EQUI, EQUALS, AND, D, F, E, G, OR, UNIQUE, Operation
 from lion.Operation import NOT, A
 
 
@@ -23,9 +22,9 @@ class Theorem:
         return res
 
 
-PHI1 = Operation("op1",1, "\phi \left( {} \\right)", "phi1", Operation.RELATION, available=False)
-PHI2 = Operation("op1",2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION, available=False)
-PHI3 = Operation("op1",2, "\kappa \left( {} , {} \\right)", "kappa", Operation.EXPRESSION, available=False)
+PHI1 = Operation("op1",1, "\phi \left( {} \\right)", "phi1", Operation.RELATION)
+PHI2 = Operation("op1",2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION)
+PHI3 = Operation("op1",2, "\kappa \left( {} , {} \\right)", "kappa", Operation.EXPRESSION)
 
 AX_EMPT = Theorem(Formula([NOT, EXISTS, A, IN, A, EMPTY]), 'ax_empt')
 AX_EXT = Theorem(Formula([FORALL, A, FORALL, B, IF, FORALL, C, EQUI, IN, C, A, IN, C, B, EQUALS, A, B]), 'ax_ext')

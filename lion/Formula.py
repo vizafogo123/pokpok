@@ -25,7 +25,7 @@ class Formula:
         return ([NOT] + self.body if self.body[0] != NOT else self.body[1:]) == other.body
 
     def negation(self):
-        return (Formula([NOT] + self.body) if self.body[0] != NOT else Formula(self.body[1:]))
+        return Formula([NOT] + self.body) if self.body[0] != NOT else Formula(self.body[1:])
 
     def start_of_child(self, n, k):
         i = n
@@ -60,34 +60,34 @@ class Formula:
             parent = (NOT if type == 'rel' else EQUALS)
             no_of_child = 1
         else:
-            parent,no_of_child=self.parent_and_no_of_child(len(self.body))
-            parent=self.body[parent]
+            parent, no_of_child = self.parent_and_no_of_child(len(self.body))
+            parent = self.body[parent]
         if Operation.can_follow(parent, op, no_of_child):
-            if op.type==Operation.VARIABLE:
-                if parent.type==Operation.QUANTOR and no_of_child==1:
+            if op.type == Operation.VARIABLE:
+                if parent.type == Operation.QUANTOR and no_of_child == 1:
                     for i in range(len(self.body)):
-                        if self.body[i]==op:
+                        if self.body[i] == op:
                             return
                 else:
-                    p,x=self.parent_and_no_of_child(len(self.body))
-                    while p>=0:
-                        if self.body[p].type==Operation.QUANTOR and self.body[p+1]==op:
+                    p, x = self.parent_and_no_of_child(len(self.body))
+                    while p >= 0:
+                        if self.body[p].type == Operation.QUANTOR and self.body[p + 1] == op:
                             self.body += [op]
                             return
                         p, x = self.parent_and_no_of_child(p)
-                    if p<0:
+                    if p < 0:
                         return
             self.body += [op]
 
-    def parent_and_no_of_child(self,k):
-        if k==0:
-            return -1,1
-        k-=1
+    def parent_and_no_of_child(self, k):
+        if k == 0:
+            return -1, 1
+        k -= 1
         n = self.body[k].no_of_args - 1
         while n < 0:
             k -= 1
             n += self.body[k].no_of_args - 1
-        return k,self.body[k].no_of_args - n
+        return k, self.body[k].no_of_args - n
 
     def to_latex(self):
         p = [''] * len(self.body)
@@ -120,7 +120,7 @@ class Formula:
                         [FORALL, new_var, IF] + Formula(self.body[n + 2:self.start_of_child(n, 3)]).substitute(
                 Formula([self.body[n + 1]]),
                 Formula([new_var])).body \
-                        + [EQUALS,new_var,self.body[n+1]] + self.body[self.start_of_child(n, 3):]
+                        + [EQUALS, new_var, self.body[n + 1]] + self.body[self.start_of_child(n, 3):]
 
     def substitute_ifs(self):
         self.body = self.substitute(Formula([IF]), Formula([OR, NOT])).body
@@ -202,8 +202,8 @@ class Formula:
         res.remove_duplicate_negations()
         if res.body[0] == NOT and res.body[1] == EQUI:
             res.substitute_equivalence(1)
-        if res.body[0]==UNIQUE or (res.body[0]==NOT and res.body[1]==UNIQUE):
-            res.substitute_unique(0 if res.body[0]==UNIQUE else 1)
+        if res.body[0] == UNIQUE or (res.body[0] == NOT and res.body[1] == UNIQUE):
+            res.substitute_unique(0 if res.body[0] == UNIQUE else 1)
         for s in [res.rename_one_quantor, res.move_one_negation_down]:
             while s():
                 res.remove_duplicate_negations()
@@ -242,6 +242,7 @@ class Formula:
     def to_json(self):
         return [op.id for op in self.body]
 
+
 if __name__ == '__main__':
-    f = Formula([FORALL,A])
+    f = Formula([FORALL, A])
     print(f.parent_and_no_of_child(0))

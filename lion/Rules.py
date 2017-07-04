@@ -1,14 +1,15 @@
 from app.FormulaBuilder import FormulaBuilder
 from lion.Formula import Formula
-from lion.Operation import FORALL, operations, Operation, EXISTS, AND, IF, OR, EQUI, A, B, NOT
-from lion.Proof import ProofElement
+from lion.Operation import FORALL, Operation, EXISTS, AND, IF, OR, EQUI, A, B, NOT, \
+    global_operations
+from lion.Proof import ProofElement, proof
 
 
-def request_formula(operations, after, type='rel',no_of_args=5):
+def request_formula(operations, after, type):
     if type=='exp':
-        FormulaBuilder([o for o in operations if o.type==Operation.EXPRESSION], after, type, no_of_args).show()
+        FormulaBuilder([o for o in operations if o.type==Operation.EXPRESSION], after, type=type).show()
     else:
-        FormulaBuilder(operations, after, type,no_of_args).show()
+        FormulaBuilder(operations, after, type=type).show()
 
 
 class Rule:
@@ -44,7 +45,7 @@ def gen_apply(formulas, after):
         f = Formula(f.body[2:]).substitute(Formula([f.body[1]]), formula)
         after(f, rule_name=gen.name, additional_info=formula)
 
-    request_formula([op for op in operations if op.available and op.type == Operation.EXPRESSION], after1, type='exp')
+    request_formula([op for op in proof.get_operations() if op.type == Operation.EXPRESSION], after1, type='exp')
 
 
 gen.is_applicable = gen_is_applicable
@@ -58,8 +59,8 @@ def exist_is_applicable(formulas):
 
 
 def exist_apply(formulas, after):
-    const = Operation.get_new_expression(operations, 0)
-    operations.append(const)
+    const = Operation.get_new_expression(proof.get_operations(), 0)
+    global_operations.append(const)#TODO:sopakop
     f = formulas[0]
     f = Formula(f.body[2:]).substitute(Formula([f.body[1]]), Formula([const]))
     after(f, rule_name=exist.name, additional_info=const)
@@ -144,7 +145,7 @@ def assumption_apply(formulas, after):
               rule_name=assumption.name)
         # TODO:spoapok
 
-    request_formula([op for op in operations if op.available], after1, type='rel')
+    request_formula(proof.get_operations(), after1, type='rel')
 
 
 assumption.is_applicable = assumption_is_applicable

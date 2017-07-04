@@ -20,11 +20,14 @@ def latex_to_url(latex):
 
 
 class FormulaBuilder(DialogWindow):
-    def __init__(self, operations, after, type='rel',no_of_vars=5):
+    def __init__(self, operations, after,**kwargs):
         DialogWindow.__init__(self, modal=True, close=True)
         self.formula = Formula([])
         self.after = after
-        self.type = type
+        if "type" in kwargs:
+            self.type = kwargs["type"]
+        else:
+            self.type='rel'
 
         self.set_styles()
 
@@ -33,7 +36,7 @@ class FormulaBuilder(DialogWindow):
                 self.add_op(op)
             return aio
 
-        self.ops_with_buttons = [{"op": op, "button": Button(op.name,op_button_click(op))} for op in operations if op.available]
+        self.ops_with_buttons = [{"op": op, "button": Button(op.name,op_button_click(op))} for op in operations]
 
         for owb in self.ops_with_buttons:
             self.add_button(owb["button"])
@@ -42,7 +45,8 @@ class FormulaBuilder(DialogWindow):
         self.is_clicked=list()
         self.textbox=list()
 
-        self.set_variables(no_of_vars)
+
+        self.set_variables((0 if self.type=='exp' else 5))
 
 
     def set_variables(self,no_of_vars,x=True):

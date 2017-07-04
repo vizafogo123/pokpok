@@ -6,12 +6,11 @@ class Operation:
     EXPRESSION = 4
     PLACEHOLDER = 5
 
-    def __init__(self, id,no_of_args, print_scheme, name, type, available=True):
+    def __init__(self, id,no_of_args, print_scheme, name, type):
         self.id=id
         self.no_of_args = no_of_args
         self.print_scheme = print_scheme.strip() + ' '
         self.name = name
-        self.available = available
         self.type = type
 
     def printout(self, list_of_args):
@@ -80,6 +79,7 @@ F = Operation("var6",0, "f", "f", Operation.VARIABLE)
 G = Operation("var7",0, "g", "g", Operation.VARIABLE)
 H = Operation("var8",0, "h", "h", Operation.VARIABLE)
 
-PLACEHOLDER = Operation("place",0, "\Box", "placeholder", Operation.PLACEHOLDER, available=False)
+PLACEHOLDER = Operation("place",0, "\Box", "placeholder", Operation.PLACEHOLDER)
 
-operations = [FORALL, EXISTS, UNIQUE, IF, OR, AND, NOT, EQUI, IN, EMPTY, EQUALS, POK]
+builtin_operations = [FORALL, EXISTS, UNIQUE, IF, OR, AND, NOT, EQUI, EQUALS, POK]
+global_operations=[EMPTY,IN]

@@ -1,5 +1,5 @@
 from lion.Formula import Formula
-from lion.Operation import A, B, C
+from lion.Operation import A, B, C, builtin_operations, global_operations
 
 
 class ProofElement:
@@ -21,10 +21,11 @@ class ProofElement:
         else:
             self.hidden = False
 
-        self.predecessors=kwargs["predecessors"]
-        self.rule_name=kwargs["rule_name"]
+        self.predecessors = kwargs["predecessors"]
+        self.rule_name = kwargs["rule_name"]
         if "additional_info" in kwargs:
-            self.additional_info=kwargs["additional_info"]
+            self.additional_info = kwargs["additional_info"]
+
 
 class Proof:
     def __init__(self):
@@ -33,7 +34,7 @@ class Proof:
     def add(self, formula, **kwargs):
         # Window.alert([self.list_index_to_proof_index(n) for n in kwargs["predecessors"]])
         f = formula.simplify()
-        kwargs["predecessors"]=[self.list_index_to_proof_index(n) for n in kwargs["predecessors"]]
+        kwargs["predecessors"] = [self.list_index_to_proof_index(n) for n in kwargs["predecessors"]]
         self.body.append(
             ProofElement(f, **kwargs))
 
@@ -66,6 +67,9 @@ class Proof:
     def unhide_all(self):
         for pe in proof.body:
             pe.hidden = False
+
+    def get_operations(self):
+        return builtin_operations + global_operations
 
 
 proof = Proof()
