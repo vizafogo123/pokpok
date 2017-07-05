@@ -26,6 +26,9 @@ class Operation:
             "print_scheme":self.print_scheme,
         }
 
+    @staticmethod
+    def from_dict(dic):
+        return Operation(dic["id"], dic["valence"], dic["print_scheme"], dic["name"], dic["type"])
 
     @staticmethod
     def can_follow(parent, child, no_of_child):

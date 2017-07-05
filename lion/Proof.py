@@ -1,5 +1,7 @@
+from pyjamas import Window
+
 from lion.Formula import Formula
-from lion.Operation import A, B, C, builtin_operations, global_operations
+from lion.Operation import A, B, C, builtin_operations, global_operations, Operation
 
 
 class ProofElement:
@@ -32,7 +34,6 @@ class Proof:
         self.body = []
 
     def add(self, formula, **kwargs):
-        # Window.alert([self.list_index_to_proof_index(n) for n in kwargs["predecessors"]])
         f = formula.simplify()
         kwargs["predecessors"] = [self.list_index_to_proof_index(n) for n in kwargs["predecessors"]]
         self.body.append(
@@ -69,21 +70,26 @@ class Proof:
             pe.hidden = False
 
     def get_operations(self):
-        return builtin_operations + global_operations
+        res=builtin_operations + global_operations
+        for f in self.get_formula_list():
+            for op in f.body:
+                if op.type<>Operation.VARIABLE and op not in res:
+                    res.append(op)
+        return res
 
 
 proof = Proof()
 
 if __name__ == "__main__":
     f = Formula([A])
-    proof.add(f)
-    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123)
-    proof.add(f, second_formula=Formula([C]), type=ProofElement.SPLIT, skao=123)
-    proof.add(f)
-    proof.add(Formula([]), type=ProofElement.CONTRA)
-    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123)
-    proof.add(f)
-    proof.add(Formula([]), type=ProofElement.CONTRA)
+    proof.add(f,predecessors=[1,2],rule_name="opj")
+    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123,predecessors=[1,2],rule_name="opj")
+    proof.add(f, second_formula=Formula([C]), type=ProofElement.SPLIT, skao=123,predecessors=[1,2],rule_name="opj")
+    proof.add(f,predecessors=[1,2],rule_name="opj")
+    proof.add(Formula([]), type=ProofElement.CONTRA,predecessors=[1,2],rule_name="opj")
+    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123,predecessors=[1,2],rule_name="opj")
+    proof.add(f,predecessors=[1,2],rule_name="opj")
+    proof.add(Formula([]), type=ProofElement.CONTRA,predecessors=[1,2],rule_name="opj")
     print([x.dump() for x in proof.get_formula_list()])
     print([proof.body[proof.list_index_to_proof_index(i)].formula.dump() for i in range(4)])
     print([proof.list_index_to_proof_index(i) for i in range(4)])

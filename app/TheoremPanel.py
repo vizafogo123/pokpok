@@ -28,15 +28,15 @@ class TheoremPanel(ScrollPanel):
                 return ["\\alpha", "\\beta", "\\gamma", "\\delta", "\\epsilon"][n]
 
             def poas(sender):
-                if len(theorem.vars) == 1:
+                if len(theorem.operations) == 1:
                     constants = [Operation("const" + str(i + 1), 0, print_scheme(i), name(i), Operation.EXPRESSION)
-                                 for i in range(theorem.vars[0].no_of_args)]
+                                 for i in range(theorem.operations[0].no_of_args)]
 
                     def after1(f):
-                        self.after(theorem.formula.substitute_definition(Formula([theorem.vars[0]] + constants), f),
+                        self.after(theorem.formula.substitute_definition(Formula([theorem.operations[0]] + constants), f),
                                    predecessors=[], rule_name="insert")
                     request_formula([op for op in proof.get_operations()] + constants,
-                                    after1, type=('rel' if theorem.vars[0].type == Operation.RELATION else 'exp'))
+                                    after1, type=('rel' if theorem.operations[0].type == Operation.RELATION else 'exp'))
                 else:
                     self.after(theorem.formula, predecessors=[], rule_name="insert")
 

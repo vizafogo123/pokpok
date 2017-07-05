@@ -60,7 +60,6 @@ def exist_is_applicable(formulas):
 
 def exist_apply(formulas, after):
     const = Operation.get_new_expression(proof.get_operations(), 0)
-    global_operations.append(const)#TODO:sopakop
     f = formulas[0]
     f = Formula(f.body[2:]).substitute(Formula([f.body[1]]), Formula([const]))
     after(f, rule_name=exist.name, additional_info=const)

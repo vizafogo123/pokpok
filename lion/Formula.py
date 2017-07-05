@@ -242,6 +242,15 @@ class Formula:
     def to_json(self):
         return [op.id for op in self.body]
 
+    @staticmethod
+    def from_list(lis,ops):
+        def find_op_by_id(id):
+            for op in ops:
+                if op.id == id:
+                    return op
+        return Formula([find_op_by_id(id) for id in lis])
+
+
 
 if __name__ == '__main__':
     f = Formula([FORALL, A])

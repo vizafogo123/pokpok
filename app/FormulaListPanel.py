@@ -42,7 +42,7 @@ class FormulaListPanel(ScrollPanel):
     def reload(self, formula_list):
         if len(formula_list)<len(self.hpanel_list):
             for h in self.hpanel_list[len(formula_list):]:
-                self.remove(h)
+                self.pok.remove(h)
             self.hpanel_list=self.hpanel_list[:len(formula_list)]
             self.checkbox_list = self.checkbox_list[:len(formula_list)]
             self.image_list = self.image_list[:len(formula_list)]

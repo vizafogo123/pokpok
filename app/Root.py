@@ -8,6 +8,7 @@ from app.FormulaBuilder import FormulaBuilder
 from app.FormulaListPanel import FormulaListPanel
 from app.TheoremPanel import TheoremPanel
 from app.io import get_request, put_request
+from lion.Operation import global_operations
 from lion.Proof import proof
 from lion.Rules import Rules
 from lion.Theorem import axioms
@@ -21,7 +22,7 @@ class Root():
         def after(formula):
             self.add_formula(formula, predecessors=[], rule_name="dojdojdoj")
 
-        FormulaBuilder([op for op in proof.get_operations() if op.available], after, type='rel').show()
+        FormulaBuilder(proof.get_operations(), after, type='rel').show()
 
     def selected_formulas(self):
         return [x for i, x in enumerate(proof.get_formula_list()) if i in self.FormulaListPanel.get_selected_indices()]
@@ -50,9 +51,6 @@ class Root():
         proof.unhide_all()
         self.FormulaListPanel.reload(proof.get_formula_list())
 
-    def sakop(self, poj):
-        Window.alert(poj)
-
     def start(self):
         button_test = Button("dojdojdoj", self.button_test_click)
         button_hide = Button("hide", self.hide_formulas)
@@ -78,4 +76,9 @@ class Root():
         h.setCellWidth(self.FormulaListPanel, "50%")
         h.setCellWidth(self.TheoremPanel, "50%")
         RootPanel().add(h)
-        # put_request({"operations":[o.to_json() for o in operations],"theorems":[ax.to_json() for ax in axioms]})
+        # put_request({"operations":[o.to_json() for o in global_operations],"theorems":[ax.to_json() for ax in axioms]})
+
+        def sakop(poj):
+            Window.alert(poj["theorems"][8])
+
+        # get_request(sakop)
