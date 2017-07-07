@@ -1,7 +1,7 @@
 from pyjamas import Window
 
 from lion.Formula import Formula
-from lion.Operation import A, B, C, builtin_operations, global_operations, Operation
+from lion.Operation import Operation
 
 
 class ProofElement:
@@ -70,7 +70,7 @@ class Proof:
             pe.hidden = False
 
     def get_operations(self):
-        res=builtin_operations + global_operations
+        res=Operation.get_globals()
         for f in self.get_formula_list():
             for op in f.body:
                 if op.type<>Operation.VARIABLE and op not in res:
@@ -81,6 +81,9 @@ class Proof:
 proof = Proof()
 
 if __name__ == "__main__":
+    A = Operation("var1", 0, "a", "a", Operation.VARIABLE)
+    B = Operation("var2", 0, "b", "b", Operation.VARIABLE)
+    C = Operation("var3", 0, "c", "c", Operation.VARIABLE)
     f = Formula([A])
     proof.add(f,predecessors=[1,2],rule_name="opj")
     proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123,predecessors=[1,2],rule_name="opj")

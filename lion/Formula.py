@@ -1,4 +1,4 @@
-from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS, A, B, C, UNIQUE, POK
+from lion.Operation import PLACEHOLDER, AND, OR, NOT, IF, FORALL, EXISTS, Operation, EQUI, EQUALS, UNIQUE
 
 
 class Formula:
@@ -253,5 +253,5 @@ class Formula:
 
 
 if __name__ == '__main__':
-    f = Formula([FORALL, A])
+    f=Formula([])
     print(f.parent_and_no_of_child(0))

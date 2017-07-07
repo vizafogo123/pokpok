@@ -10,7 +10,7 @@ from lion.Formula import Formula
 from lion.Operation import Operation
 from lion.Proof import proof
 from lion.Rules import request_formula
-from lion.Theorem import axioms
+from lion.Theorem import Theorem
 
 
 class TheoremPanel(ScrollPanel):
@@ -42,7 +42,7 @@ class TheoremPanel(ScrollPanel):
 
             return poas
 
-        for ax in axioms:
+        for ax in Theorem.axioms:
             im = Image()
             im.addClickListener(onClick(ax))
             im.setUrl(latex_to_url(ax.formula.to_latex()))

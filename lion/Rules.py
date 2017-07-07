@@ -1,7 +1,6 @@
 from app.FormulaBuilder import FormulaBuilder
 from lion.Formula import Formula
-from lion.Operation import FORALL, Operation, EXISTS, AND, IF, OR, EQUI, A, B, NOT, \
-    global_operations
+from lion.Operation import FORALL, Operation, EXISTS, AND, IF, OR, EQUI
 from lion.Proof import ProofElement, proof
 
 
@@ -214,6 +213,8 @@ deduction.apply = deduction_apply
 Rules = [gen, exist, and_first, and_second, split, contra, assumption, deduction]
 
 if __name__ == '__main__':
+    A = Operation("var1", 0, "a", "a", Operation.VARIABLE)
+    B = Operation("var2", 0, "b", "b", Operation.VARIABLE)
     fa = Formula([OR, A, B])
     g = Formula([B])
 

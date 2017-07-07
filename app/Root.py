@@ -2,16 +2,17 @@ from pyjamas import Window
 from pyjamas.ui import HasAlignment
 from pyjamas.ui.Button import Button
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
+from pyjamas.ui.Label import Label
 from pyjamas.ui.RootPanel import RootPanel
 
 from app.FormulaBuilder import FormulaBuilder
 from app.FormulaListPanel import FormulaListPanel
 from app.TheoremPanel import TheoremPanel
 from app.io import get_request, put_request
-from lion.Operation import global_operations
+from lion.Operation import Operation
 from lion.Proof import proof
 from lion.Rules import Rules
-from lion.Theorem import axioms
+from lion.Theorem import Theorem
 
 
 class Root():
@@ -51,18 +52,35 @@ class Root():
         proof.unhide_all()
         self.FormulaListPanel.reload(proof.get_formula_list())
 
-    def start(self):
-        button_test = Button("dojdojdoj", self.button_test_click)
-        button_hide = Button("hide", self.hide_formulas)
-        button_unhide = Button("unhide all", self.unhide_all)
+    def download_data(self, after):
+        def after1(json):
+            Operation.global_operations = [Operation.from_dict(op) for op in json["operations"]]
+            Theorem.axioms = [Theorem.from_dict(th) for th in json["theorems"]]
+            self.label_done.setText("done")
+            after()
+            # put_request({"operations": [o.to_json() for o in Operation.global_operations],
+            #              "theorems": [ax.to_json() for ax in Theorem.axioms]})
+
+        get_request(after1)
+
+
+
+    def setup_before_data(self):
+        self.button_test = Button("dojdojdoj", self.button_test_click)
+        self.button_hide = Button("hide", self.hide_formulas)
+        self.button_unhide = Button("unhide all", self.unhide_all)
+        self.label_done = Label("loading")
 
         for r in Rules:
             RootPanel().add(Button(r.name, self.button_rule_click(r), StyleName='teststyle'))
-        RootPanel().add(button_test)
-        RootPanel().add(button_hide)
-        RootPanel().add(button_unhide)
+        RootPanel().add(self.button_test)
+        RootPanel().add(self.button_hide)
+        RootPanel().add(self.button_unhide)
+        RootPanel().add(self.label_done)
 
         self.FormulaListPanel = FormulaListPanel()
+
+    def setup_after_data(self):
         self.TheoremPanel = TheoremPanel(self.add_formula)
 
         h = HorizontalPanel(BorderWidth=1,
@@ -76,9 +94,7 @@ class Root():
         h.setCellWidth(self.FormulaListPanel, "50%")
         h.setCellWidth(self.TheoremPanel, "50%")
         RootPanel().add(h)
-        # put_request({"operations":[o.to_json() for o in global_operations],"theorems":[ax.to_json() for ax in axioms]})
 
-        def sakop(poj):
-            Window.alert(poj["theorems"][8])
-
-        # get_request(sakop)
+    def start(self):
+        self.setup_before_data()
+        self.download_data(self.setup_after_data)

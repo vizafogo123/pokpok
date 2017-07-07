@@ -14,7 +14,7 @@ class SlideListLoader:
 file = "http://api.myjson.com/bins/iqorv"
 
 def apos(x):
-    Window.alert(x)
+    pass
 
 def get_request(after, file_name=file):
     handler=SlideListLoader(after)
