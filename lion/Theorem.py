@@ -3,15 +3,16 @@ from lion.Operation import Operation
 
 
 class Theorem:
-    axioms = []
+    theorems = []
 
-    def __init__(self, formula, name, operations=list()):
+    def __init__(self, formula, id, folder, operations=list()):
         self.formula = formula
-        self.name = name
+        self.id = id
         self.operations = operations
+        self.folder = folder
 
     def to_json(self):
-        return {"name": self.name, "formula": self.formula.to_json(),
+        return {"id": self.id, "formula": self.formula.to_json(),
                 "spec_ops": [op.to_json() for op in self.operations],
                 "var_print_schemes": self.get_var_print_schemes()}
 
@@ -21,19 +22,27 @@ class Theorem:
             if op.type == Operation.VARIABLE and op.id not in res:
                 res[op.id] = op.print_scheme
         return res
+    @staticmethod
+    def get_all_folders():
+        x=list()
+        for t in Theorem.theorems:
+            if not t.folder in x:
+                x.append(t.folder)
+        return x
 
     @staticmethod
     def from_dict(dic):
         vars = [Operation(k, 0, dic["var_print_schemes"][k], k, Operation.VARIABLE) for k in dic["var_print_schemes"]]
         spec_ops = [Operation.from_dict(k) for k in dic["spec_ops"]]
-        return Theorem(Formula.from_list(dic["formula"],Operation.get_globals() + vars + spec_ops),
-                       dic["name"], operations=spec_ops)
+        return Theorem(Formula.from_list(dic["formula"], Operation.get_globals() + vars + spec_ops),
+                       dic["id"], dic["folder"], operations=spec_ops)
+
 
 # PHI1 = Operation("op1", 1, "\phi \left( {} \\right)", "phi1", Operation.RELATION)
 # PHI2 = Operation("op1", 2, "\phi \left( {} , {} \\right)", "phi2", Operation.RELATION)
 # PHI3 = Operation("op1", 2, "\kappa \left( {} , {} \\right)", "kappa", Operation.EXPRESSION)
 
-# AX_EMPT = Theorem(Formula([NOT, EXISTS, A, IN, A, EMPTY]), 'ax_empt')
+
 # AX_EXT = Theorem(Formula([FORALL, A, FORALL, B, IF, FORALL, C, EQUI, IN, C, A, IN, C, B, EQUALS, A, B]), 'ax_ext')
 # AX_REG = Theorem(Formula(
 #     [FORALL, A, IF, NOT, EQUALS, A, EMPTY, EXISTS, B, AND, IN, B, A, NOT, EXISTS, C, AND, IN, C, B, IN, C, A]),
@@ -63,6 +72,5 @@ if __name__ == '__main__':
             "spec_ops": [{"id": "op1", "name": "phi2", "valence": 2, "type": 3,
                           "print_scheme": "\\phi \\left( {} , {} \\right) "}],
             "var_print_schemes": {"var1": "a ", "var2": "b ", "var3": "c ", "var4": "d ", "var5": "e ", "var6": "f "}}
-    print(Theorem.from_dict(asok).formula.to_latex())
     # for k in asok["var_print_schemes"]:
     #     print(k,asok["var_print_schemes"][k])

@@ -55,7 +55,7 @@ class Root():
     def download_data(self, after):
         def after1(json):
             Operation.global_operations = [Operation.from_dict(op) for op in json["operations"]]
-            Theorem.axioms = [Theorem.from_dict(th) for th in json["theorems"]]
+            Theorem.theorems = [Theorem.from_dict(th) for th in json["theorems"]]
             self.label_done.setText("done")
             after()
             # put_request({"operations": [o.to_json() for o in Operation.global_operations],

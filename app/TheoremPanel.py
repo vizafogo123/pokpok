@@ -1,4 +1,5 @@
 from pyjamas import Window
+from pyjamas.ui.ListBox import ListBox
 
 from pyjamas.ui.ScrollPanel import ScrollPanel
 from pyjamas.ui.VerticalPanel import VerticalPanel
@@ -19,6 +20,28 @@ class TheoremPanel(ScrollPanel):
         self.after = after
         self.pok = VerticalPanel()
         self.add(self.pok)
+        self.images = list()
+
+        def onItemSelected():
+            item = self.list2.getItemText(self.list2.getSelectedIndex())
+            self.refresh_theorems(item)
+
+        self.list2 = ListBox()
+        self.list2.setVisibleItemCount(1)
+        for f in Theorem.get_all_folders():
+            self.list2.addItem(f)
+        self.pok.add(self.list2)
+        self.list2.addChangeListener(onItemSelected)
+
+        self.refresh_theorems(self.list2.getItemText(self.list2.getSelectedIndex()))
+
+    def remove_images(self):
+        for im in self.images:
+            self.pok.remove(im)
+        self.images = list()
+
+    def refresh_theorems(self, folder):
+        self.remove_images()
 
         def onClick(theorem):
             def name(n):
@@ -33,8 +56,10 @@ class TheoremPanel(ScrollPanel):
                                  for i in range(theorem.operations[0].no_of_args)]
 
                     def after1(f):
-                        self.after(theorem.formula.substitute_definition(Formula([theorem.operations[0]] + constants), f),
-                                   predecessors=[], rule_name="insert")
+                        self.after(
+                            theorem.formula.substitute_definition(Formula([theorem.operations[0]] + constants), f),
+                            predecessors=[], rule_name="insert")
+
                     request_formula([op for op in proof.get_operations()] + constants,
                                     after1, type=('rel' if theorem.operations[0].type == Operation.RELATION else 'exp'))
                 else:
@@ -42,8 +67,9 @@ class TheoremPanel(ScrollPanel):
 
             return poas
 
-        for ax in Theorem.axioms:
+        for ax in [x for x in Theorem.theorems if x.folder == folder]:
             im = Image()
             im.addClickListener(onClick(ax))
             im.setUrl(latex_to_url(ax.formula.to_latex()))
             self.pok.add(im)
+            self.images.append(im)
