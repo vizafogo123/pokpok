@@ -2,6 +2,7 @@ from pyjamas import Window
 
 from lion.Formula import Formula
 from lion.Operation import Operation
+from lion.Theorem import Theorem
 
 
 class ProofElement:
@@ -11,23 +12,24 @@ class ProofElement:
 
     def __init__(self, formula, **kwargs):
         self.formula = formula
-        self.type = self.NORMAL
-        if "type" in kwargs:
-            self.type = kwargs["type"]
-
-        if "second_formula" in kwargs:
-            self.second_formula = kwargs["second_formula"]
-
-        if "hidden" in kwargs:
-            self.hidden = kwargs["hidden"]
-        else:
-            self.hidden = False
-
         self.predecessors = kwargs["predecessors"]
         self.rule_name = kwargs["rule_name"]
-        if "additional_info" in kwargs:
-            self.additional_info = kwargs["additional_info"]
+        self.additional_info = (None if "additional_info" not in kwargs else kwargs["additional_info"])
+        self.hidden = (False if "hidden" not in kwargs else kwargs["hidden"])
+        self.second_formula = (None if "second_formula" not in kwargs else kwargs["second_formula"])
+        self.type = (self.NORMAL if "type" not in kwargs else kwargs["type"])
 
+    def to_json(self):
+        res={
+            "formula":self.formula.to_json(),
+            "rule_name":self.rule_name,
+            "predecessors":self.predecessors
+        }
+        if self.additional_info is not None:
+            res["additional_info"]=self.additional_info.to_json()
+        if self.second_formula is not None:
+            res["second_formula"]=self.second_formula.to_json()
+        return res
 
 class Proof:
     def __init__(self):
@@ -35,7 +37,8 @@ class Proof:
 
     def add(self, formula, **kwargs):
         f = formula.simplify()
-        kwargs["predecessors"] = [self.list_index_to_proof_index(n) for n in kwargs["predecessors"]]
+        # Window.alert(kwargs)
+        # kwargs["predecessors"] = [self.list_index_to_proof_index(n) for n in kwargs["predecessors"]]
         self.body.append(
             ProofElement(f, **kwargs))
 
@@ -70,12 +73,48 @@ class Proof:
             pe.hidden = False
 
     def get_operations(self):
-        res=Operation.get_globals()
+        res = Operation.get_globals()
         for f in self.get_formula_list():
             for op in f.body:
-                if op.type<>Operation.VARIABLE and op not in res:
+                if op.type <> Operation.VARIABLE and op not in res:
                     res.append(op)
         return res
+
+    def get_local_ops(self):
+        res = list()
+        for f in self.get_formula_list():
+            for op in f.body:
+                if op.type <> Operation.VARIABLE and op not in Operation.get_globals() and op not in res:
+                    res.append(op)
+        return res
+
+
+    def apply_rule(self, rule, selected_indices, after):
+        selected_formulas=[x for i, x in enumerate(proof.get_formula_list()) if i in selected_indices]
+        selected_indices = [self.list_index_to_proof_index(n) for n in selected_indices]
+        if not rule.is_applicable(selected_formulas):
+            Window.alert("opkop")
+            return
+
+        def after1(formula,**kwargs):
+            if not "predecessors" in kwargs:
+                kwargs["predecessors"] = selected_indices
+            self.add(formula, **kwargs)
+            after()
+
+        rule.apply(selected_formulas,after1)
+
+    def to_json(self):
+        return {"proof":[pe.to_json() for pe in proof.body],
+                "local_ops":"" # "[op.to_json() for op in self.get_local_ops()]
+                }
+
+    def get_theorem_to_save(self,selected_indices):
+        if len(selected_indices)!=1 or sum(pe.type for pe in self.body)!=0:
+            Window.alert("kop")
+            return None
+        f=[x for i, x in enumerate(proof.get_formula_list()) if i in selected_indices][0]
+        return Theorem(f,Theorem.get_new_id(),"")
 
 
 proof = Proof()
@@ -85,14 +124,14 @@ if __name__ == "__main__":
     B = Operation("var2", 0, "b", "b", Operation.VARIABLE)
     C = Operation("var3", 0, "c", "c", Operation.VARIABLE)
     f = Formula([A])
-    proof.add(f,predecessors=[1,2],rule_name="opj")
-    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123,predecessors=[1,2],rule_name="opj")
-    proof.add(f, second_formula=Formula([C]), type=ProofElement.SPLIT, skao=123,predecessors=[1,2],rule_name="opj")
-    proof.add(f,predecessors=[1,2],rule_name="opj")
-    proof.add(Formula([]), type=ProofElement.CONTRA,predecessors=[1,2],rule_name="opj")
-    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123,predecessors=[1,2],rule_name="opj")
-    proof.add(f,predecessors=[1,2],rule_name="opj")
-    proof.add(Formula([]), type=ProofElement.CONTRA,predecessors=[1,2],rule_name="opj")
+    proof.add(f, predecessors=[1, 2], rule_name="opj")
+    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123, predecessors=[1, 2], rule_name="opj")
+    proof.add(f, second_formula=Formula([C]), type=ProofElement.SPLIT, skao=123, predecessors=[1, 2], rule_name="opj")
+    proof.add(f, predecessors=[1, 2], rule_name="opj")
+    proof.add(Formula([]), type=ProofElement.CONTRA, predecessors=[1, 2], rule_name="opj")
+    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123, predecessors=[1, 2], rule_name="opj")
+    proof.add(f, predecessors=[1, 2], rule_name="opj")
+    proof.add(Formula([]), type=ProofElement.CONTRA, predecessors=[1, 2], rule_name="opj")
     print([x.dump() for x in proof.get_formula_list()])
     print([proof.body[proof.list_index_to_proof_index(i)].formula.dump() for i in range(4)])
     print([proof.list_index_to_proof_index(i) for i in range(4)])

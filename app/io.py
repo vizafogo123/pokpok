@@ -2,6 +2,8 @@ from pyjamas import Window
 from pyjamas.HTTPRequest import HTTPRequest
 
 from app.json import dumps, loads
+from lion.Operation import Operation
+from lion.Theorem import Theorem
 
 
 class SlideListLoader:
@@ -11,21 +13,33 @@ class SlideListLoader:
     def onCompletion(self, text):
         self.after(loads(text))
 
-file = "http://api.myjson.com/bins/iqorv"
+file_name = "http://api.myjson.com/bins/iqorv"
 
-def apos(x):
-    pass
-
-def get_request(after, file_name=file):
-    handler=SlideListLoader(after)
-    HTTPRequest().asyncGet(file_name, handler)
+class IO:
 
 
-def put_request(content, file_name=file):
-    HTTPRequest().asyncPut(file_name, dumps(content),
-                           SlideListLoader(apos), headers={'Content-Type': 'application/json'})
+    @staticmethod
+    def apos(x):
+        Window.alert("saved")
+
+    @staticmethod
+    def get_request(after, file_name=file_name):
+        handler=SlideListLoader(after)
+        HTTPRequest().asyncGet(file_name, handler)
 
 
-def post_request(content):
-    HTTPRequest().asyncPost("http://api.myjson.com/bins/", dumps(content), SlideListLoader(apos),
-                            headers={'Content-Type': 'application/json'})
+    @staticmethod
+    def put_request(content, file_name=file_name):
+        HTTPRequest().asyncPut(file_name, dumps(content),
+                               SlideListLoader(IO.apos), headers={'Content-Type': 'application/json'})
+
+
+    @staticmethod
+    def post_request(content):
+        HTTPRequest().asyncPost("http://api.myjson.com/bins/", dumps(content), SlideListLoader(IO.apos),
+                                headers={'Content-Type': 'application/json'})
+
+    @staticmethod
+    def save():
+        IO.put_request({"operations": [o.to_json() for o in Operation.global_operations],
+                     "theorems": [t.to_json() for t in Theorem.theorems]})

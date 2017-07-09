@@ -7,8 +7,9 @@ from pyjamas.ui.RootPanel import RootPanel
 
 from app.FormulaBuilder import FormulaBuilder
 from app.FormulaListPanel import FormulaListPanel
+from app.SaveDialog import SaveDialog
 from app.TheoremPanel import TheoremPanel
-from app.io import get_request, put_request
+from app.io import IO
 from lion.Operation import Operation
 from lion.Proof import proof
 from lion.Rules import Rules
@@ -25,23 +26,19 @@ class Root():
 
         FormulaBuilder(proof.get_operations(), after, type='rel').show()
 
-    def selected_formulas(self):
-        return [x for i, x in enumerate(proof.get_formula_list()) if i in self.FormulaListPanel.get_selected_indices()]
-
     def button_rule_click(self, rule):
-        def pok():
-            if not rule.is_applicable(self.selected_formulas()):
-                Window.alert("opkop")
-                return
-            rule.apply(self.selected_formulas(), self.add_formula)
+        def res():
+            proof.apply_rule(rule,self.FormulaListPanel.get_selected_indices(),self.refresh)
+        return res
 
-        return pok
+    def refresh(self):
+        self.FormulaListPanel.reload(proof.get_formula_list())
 
     def add_formula(self, formula, **kwargs):
         if not "predecessors" in kwargs:
             kwargs["predecessors"] = self.FormulaListPanel.get_selected_indices()
         proof.add(formula, **kwargs)
-        self.FormulaListPanel.reload(proof.get_formula_list())
+        self.refresh()
 
     def hide_formulas(self):
         proof.hide_formulas(self.FormulaListPanel.get_selected_indices())
@@ -61,24 +58,32 @@ class Root():
             # put_request({"operations": [o.to_json() for o in Operation.global_operations],
             #              "theorems": [ax.to_json() for ax in Theorem.axioms]})
 
-        get_request(after1)
+        IO.get_request(after1)
 
-
+    def button_save(self):
+        t=proof.get_theorem_to_save(self.FormulaListPanel.get_selected_indices())
+        if t is not None:
+            SaveDialog(t).show()
+        # IO.put_request(proof.to_json(),file_name="http://api.myjson.com/bins/16lyhr")
 
     def setup_before_data(self):
         self.button_test = Button("dojdojdoj", self.button_test_click)
         self.button_hide = Button("hide", self.hide_formulas)
         self.button_unhide = Button("unhide all", self.unhide_all)
+        self.button_save = Button("save", self.button_save)
         self.label_done = Label("loading")
+
+        self.FormulaListPanel = FormulaListPanel()
 
         for r in Rules:
             RootPanel().add(Button(r.name, self.button_rule_click(r), StyleName='teststyle'))
         RootPanel().add(self.button_test)
         RootPanel().add(self.button_hide)
         RootPanel().add(self.button_unhide)
+        RootPanel().add(self.button_save)
         RootPanel().add(self.label_done)
 
-        self.FormulaListPanel = FormulaListPanel()
+
 
     def setup_after_data(self):
         self.TheoremPanel = TheoremPanel(self.add_formula)

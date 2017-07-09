@@ -14,7 +14,8 @@ class Theorem:
     def to_json(self):
         return {"id": self.id, "formula": self.formula.to_json(),
                 "spec_ops": [op.to_json() for op in self.operations],
-                "var_print_schemes": self.get_var_print_schemes()}
+                "var_print_schemes": self.get_var_print_schemes(),
+                "folder":self.folder}
 
     def get_var_print_schemes(self):
         res = dict()
@@ -22,6 +23,14 @@ class Theorem:
             if op.type == Operation.VARIABLE and op.id not in res:
                 res[op.id] = op.print_scheme
         return res
+
+    @staticmethod
+    def get_new_id():
+        i=0
+        while i in [t.id for t in Theorem.theorems]:
+            i+=1
+        return i
+
     @staticmethod
     def get_all_folders():
         x=list()
