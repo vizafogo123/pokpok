@@ -28,11 +28,12 @@ class Root():
 
     def button_rule_click(self, rule):
         def res():
-            proof.apply_rule(rule,self.FormulaListPanel.get_selected_indices(),self.refresh)
+            proof.apply_rule(rule, self.FormulaListPanel.get_selected_indices(), self.refresh)
+
         return res
 
     def refresh(self):
-        self.FormulaListPanel.reload(proof.get_formula_list())
+        self.FormulaListPanel.reload(proof.get_formula_list(), proof.split_points())
 
     def add_formula(self, formula, **kwargs):
         if not "predecessors" in kwargs:
@@ -42,12 +43,11 @@ class Root():
 
     def hide_formulas(self):
         proof.hide_formulas(self.FormulaListPanel.get_selected_indices())
-        self.FormulaListPanel.reload(proof.get_formula_list())
+        self.refresh()
 
     def unhide_all(self):
-        Window.alert([p.rule_name for p in proof.body])
         proof.unhide_all()
-        self.FormulaListPanel.reload(proof.get_formula_list())
+        self.refresh()
 
     def download_data(self, after):
         def after1(json):
@@ -61,10 +61,11 @@ class Root():
         IO.get_request(after1)
 
     def button_save(self):
-        t=proof.get_theorem_to_save(self.FormulaListPanel.get_selected_indices())
+        t = proof.get_theorem_to_save(self.FormulaListPanel.get_selected_indices())
         if t is not None:
             SaveDialog(t).show()
-        # IO.put_request(proof.to_json(),file_name="http://api.myjson.com/bins/16lyhr")
+
+            # IO.put_request(proof.to_json(),file_name="http://api.myjson.com/bins/16lyhr")
 
     def setup_before_data(self):
         self.button_test = Button("dojdojdoj", self.button_test_click)
@@ -73,7 +74,22 @@ class Root():
         self.button_save = Button("save", self.button_save)
         self.label_done = Label("loading")
 
-        self.FormulaListPanel = FormulaListPanel()
+        def pok(n):
+            def soa():
+                r = {"and_first": Rules[2],
+                     "and_second": Rules[3],
+                     "gen": Rules[0],
+                     "exists": Rules[1],
+                     "split": Rules[4],
+                     "contra": Rules[5],
+                     "assumption": Rules[6],
+                     "deduction": Rules[7]
+                     }
+                proof.take_recommended_action(n, r, self.refresh)
+
+            return soa
+
+        self.FormulaListPanel = FormulaListPanel(pok)
 
         for r in Rules:
             RootPanel().add(Button(r.name, self.button_rule_click(r), StyleName='teststyle'))
@@ -82,8 +98,6 @@ class Root():
         RootPanel().add(self.button_unhide)
         RootPanel().add(self.button_save)
         RootPanel().add(self.label_done)
-
-
 
     def setup_after_data(self):
         self.TheoremPanel = TheoremPanel(self.add_formula)
