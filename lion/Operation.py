@@ -64,6 +64,13 @@ class Operation:
                               "S_" + str(i) + " \left( " + ",".join(['{}'] * no_of_args) + "\\right)",
                               "S_" + str(i), Operation.EXPRESSION)
 
+    @staticmethod
+    def get_new_id():
+        i = 1
+        while i in [op.id for op in Operation.builtin_operations + Operation.global_operations]:
+            i += 1
+        return i
+
 
 FORALL = Operation(1, 2, "\\forall {} : \, {}", "forall", Operation.QUANTOR)
 EXISTS = Operation(2, 2, "\\exists {} : \, {}", "exists", Operation.QUANTOR)

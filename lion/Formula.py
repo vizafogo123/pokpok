@@ -243,15 +243,49 @@ class Formula:
         return [op.id for op in self.body]
 
     @staticmethod
-    def from_list(lis,ops):
+    def from_list(lis, ops):
         def find_op_by_id(id):
             for op in ops:
                 if op.id == id:
                     return op
+
         return Formula([find_op_by_id(id) for id in lis])
 
+    def is_in_unique_form(self):
+        if len(self.body) == 0:
+            return False
+        i = 0
+        while True:
+            if self.body[i] == UNIQUE:
+                return True
+            if self.body[i] == FORALL:
+                i += 2
+            else:
+                return False
+
+    def get_def_theorem(self, op):
+        i = 0
+        k=[]
+        while self.body[i] != UNIQUE:
+            i += 2
+            k.append(self.body[i-1])
+
+        return Formula(self.body[:i] + Formula(self.body[i + 2:]).substitute(Formula([self.body[i + 1]]),
+                                                                             Formula([op] + k)).body)
+
+    def get_no_of_args_for_unique_form(self):
+        i = 0
+        while self.body[2 * i] != UNIQUE:
+            i += 1
+        return i
 
 
 if __name__ == '__main__':
-    f=Formula([])
-    print(f.parent_and_no_of_child(0))
+    A = Operation("var1", 0, "a", "a", Operation.VARIABLE)
+    B = Operation("var2", 0, "b", "b", Operation.VARIABLE)
+    C = Operation("var3", 0, "c", "c", Operation.VARIABLE)
+    OAS = Operation("var3", 2, "oas", "oas", Operation.EXPRESSION)
+    pok = Operation("erg", 1, "pok", "pok", Operation.EXPRESSION)
+    f = Formula([FORALL, A, UNIQUE, C, EQUALS, A, C])
+    print(f.get_def_theorem(pok).dump(),Operation.get_new_id())
+    Operation.get_new_id()

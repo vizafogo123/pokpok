@@ -5,6 +5,7 @@ from pyjamas.ui.HorizontalPanel import HorizontalPanel
 from pyjamas.ui.Label import Label
 from pyjamas.ui.RootPanel import RootPanel
 
+from app.DefinitionDialog import DefinitionDialog
 from app.FormulaBuilder import FormulaBuilder
 from app.FormulaListPanel import FormulaListPanel
 from app.SaveDialog import SaveDialog
@@ -60,18 +61,22 @@ class Root():
 
         IO.get_request(after1)
 
-    def button_save(self):
+    def button_save_click(self):
         t = proof.get_theorem_to_save(self.FormulaListPanel.get_selected_indices())
         if t is not None:
             SaveDialog(t).show()
 
             # IO.put_request(proof.to_json(),file_name="http://api.myjson.com/bins/16lyhr")
 
+    def button_defi_click(self):
+        DefinitionDialog().show()
+
     def setup_before_data(self):
         self.button_test = Button("dojdojdoj", self.button_test_click)
         self.button_hide = Button("hide", self.hide_formulas)
         self.button_unhide = Button("unhide all", self.unhide_all)
-        self.button_save = Button("save", self.button_save)
+        self.button_save = Button("save", self.button_save_click)
+        self.button_defi = Button("definition", self.button_defi_click)
         self.label_done = Label("loading")
 
         def pok(n):
@@ -97,6 +102,7 @@ class Root():
         RootPanel().add(self.button_hide)
         RootPanel().add(self.button_unhide)
         RootPanel().add(self.button_save)
+        RootPanel().add(self.button_defi)
         RootPanel().add(self.label_done)
 
     def setup_after_data(self):
