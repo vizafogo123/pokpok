@@ -42,8 +42,14 @@ class Proof:
             ProofElement(f, **kwargs))
 
     def active_list(self):
-        depths = [sum([x.type for x in self.body[:i + 1]]) for i in range(len(self.body))]  # TODO:sajp
-        min_depths = [min(depths[i:]) for i in range(len(self.body))]
+        depths=[self.body[0].type]
+        for i in range(len(self.body)-1):
+            depths.append(depths[i]+self.body[i+1].type)
+
+        min_depths = [depths[-1]]
+        for i in reversed(range(len(self.body)-1)):
+            min_depths=[min(min_depths[0],depths[-i])]+min_depths
+
         return [(0 if not ((not pe.hidden) and pe.type <> ProofElement.CONTRA and (d <= m + pe.type)) else
                  (1 if pe.type == ProofElement.NORMAL or d <= m else 2))
                 for pe, d, m in zip(self.body, depths, min_depths)]
@@ -147,15 +153,20 @@ if __name__ == "__main__":
     B = Operation("var2", 0, "b", "b", Operation.VARIABLE)
     C = Operation("var3", 0, "c", "c", Operation.VARIABLE)
     f = Formula([A])
-    proof.add(f, predecessors=[1, 2], rule_name="opj")
-    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123, predecessors=[1, 2], rule_name="opj")
-    proof.add(f, second_formula=Formula([C]), type=ProofElement.SPLIT, skao=123, predecessors=[1, 2], rule_name="opj")
-    proof.add(f, predecessors=[1, 2], rule_name="opj")
-    proof.add(Formula([]), type=ProofElement.CONTRA, predecessors=[1, 2], rule_name="opj")
-    proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123, predecessors=[1, 2], rule_name="opj")
-    proof.add(f, predecessors=[1, 2], rule_name="opj")
-    proof.add(Formula([]), type=ProofElement.CONTRA, predecessors=[1, 2], rule_name="opj")
-    print([x.dump() for x in proof.get_formula_list()])
-    print([proof.body[proof.list_index_to_proof_index(i)].formula.dump() for i in range(4)])
-    print([proof.list_index_to_proof_index(i) for i in range(4)])
-    print(proof.active_list())
+    for i in range(3000):
+        proof.add(f, predecessors=[1, 2], rule_name="opj")
+        proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123, predecessors=[1, 2], rule_name="opj")
+        proof.add(f, second_formula=Formula([C]), type=ProofElement.SPLIT, skao=123, predecessors=[1, 2], rule_name="opj")
+        proof.add(f, predecessors=[1, 2], rule_name="opj")
+        proof.add(Formula([]), type=ProofElement.CONTRA, predecessors=[1, 2], rule_name="opj")
+        proof.add(f, second_formula=Formula([B]), type=ProofElement.SPLIT, skao=123, predecessors=[1, 2], rule_name="opj")
+        proof.add(f, predecessors=[1, 2], rule_name="opj")
+        proof.add(Formula([]), type=ProofElement.CONTRA, predecessors=[1, 2], rule_name="opj")
+
+    # print([x.dump() for x in proof.get_formula_list()])
+    # print([proof.body[proof.list_index_to_proof_index(i)].formula.dump() for i in range(4)])
+    # print([proof.list_index_to_proof_index(i) for i in range(4)])
+    # t=time.time()
+    # print t
+    # print(proof.active_list())
+    # print time.time()-t
